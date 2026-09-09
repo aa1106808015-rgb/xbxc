@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小白学菜 · 从零开始学做菜</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --paper: #fffdf8;
+      --ink: #191914;
+      --muted: #6e6c63;
+      --faint: #a09e94;
+      --line: rgba(25, 25, 20, .13);
+      --line-soft: rgba(25, 25, 20, .07);
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+      --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .skip {
+      position: absolute;
+      left: -999px;
+      top: 12px;
+      z-index: 50;
+      padding: 10px 16px;
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 999px;
+      text-decoration: none;
+    }
+
+    .skip:focus {
+      left: 12px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      min-height: 68px;
+      padding: 0 clamp(20px, 4vw, 46px);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      min-width: 0;
+    }
+
+    .topbar-left {
+      justify-content: flex-start;
+    }
+
+    .topbar-right {
+      justify-content: flex-end;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: .04em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .wordmark-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+      flex: none;
+    }
+
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 7px 4px;
+    }
+
+    .menu-btn:hover {
+      color: var(--ink);
+    }
+
+    .menu-btn svg {
+      transition: transform .2s ease;
+    }
+
+    .menu-btn[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    .menu-pop {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 260px;
+      padding: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(25, 25, 20, .09);
+      z-index: 30;
+    }
+
+    .menu-pop.hidden {
+      display: none;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 13px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .nav-link:hover {
+      background: var(--line-soft);
+    }
+
+    .nav-link small {
+      font-size: 12px;
+      color: var(--faint);
+    }
+
+    .topbar-center {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .help {
+      width: 19px;
+      height: 19px;
+      border: 1px solid var(--faint);
+      border-radius: 50%;
+      font-family: var(--serif);
+      font-size: 12px;
+      line-height: 1;
+      color: var(--muted);
+      display: inline-grid;
+      place-items: center;
+      padding: 0 0 1px;
+    }
+
+    .help:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .help-tip {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(420px, calc(100vw - 40px));
+      background: var(--ink);
+      color: var(--bg);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.7;
+      box-shadow: 0 16px 40px rgba(25, 25, 20, .18);
+      z-index: 40;
+    }
+
+    .help-tip::after {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: calc(50% - 5px);
+      width: 10px;
+      height: 10px;
+      background: var(--ink);
+      transform: rotate(45deg);
+    }
+
+    .text-link {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .text-link:hover {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 14px;
+      font-weight: 550;
+      text-decoration: none;
+      border: 1px solid var(--ink);
+      transition: transform .16s ease, opacity .16s ease;
+      white-space: nowrap;
+    }
+
+    .pill:hover {
+      transform: translateY(-1px);
+    }
+
+    .pill:disabled {
+      opacity: .55;
+      cursor: default;
+      transform: none;
+    }
+
+    .hero {
+      padding: clamp(56px, 9vh, 104px) 24px 0;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 22px;
+      font-size: 13px;
+      letter-spacing: .32em;
+      color: var(--muted);
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      display: inline-block;
+      width: 22px;
+      height: 1px;
+      vertical-align: middle;
+      background: var(--faint);
+      margin: 0 14px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(74px, 16.5vw, 208px);
+      line-height: 1.06;
+      letter-spacing: .02em;
+    }
+
+    .prompt {
+      max-width: 680px;
+      margin: clamp(40px, 6vh, 68px) auto 0;
+      text-align: center;
+    }
+
+    .prompt-rail {
+      width: 1px;
+      height: 38px;
+      margin: 0 auto 16px;
+      background: var(--line);
+    }
+
+    .prompt-head {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 550;
+    }
+
+    .prompt-sub {
+      margin: 6px 0 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .prompt-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 20px 14px;
+      text-align: left;
+      box-shadow: 0 1px 0 rgba(25, 25, 20, .02);
+    }
+
+    .prompt-card textarea {
+      display: block;
+      width: 100%;
+      min-height: 88px;
+      padding: 8px 4px 4px;
+      border: 0;
+      background: transparent;
+      resize: none;
+      font: 400 17px/1.8 var(--sans);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .prompt-card textarea::placeholder {
+      color: var(--faint);
+    }
+
+    .prompt-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .prompt-meta .pill {
+      padding: 10px 24px;
+      font-size: 15px;
+    }
+
+    .prompt-hints {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12.5px;
+      color: var(--faint);
+    }
+
+    .example-btn {
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .example-btn:hover {
+      color: var(--ink);
+    }
+
+    .feed {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: clamp(80px, 12vh, 126px) 24px 90px;
+    }
+
+    .feed-head {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .feed-head .eyebrow {
+      margin-bottom: 18px;
+    }
+
+    .feed-head h2 {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.3;
+    }
+
+    .feed-head p:last-child {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .cards {
+      margin-top: 58px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      text-align: left;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(25, 25, 20, .07);
+    }
+
+    .card-link {
+      display: block;
+      border-radius: 20px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card-link:hover .card {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(25, 25, 20, .07);
+    }
+
+    .cover {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: linear-gradient(140deg, var(--a), var(--b));
+    }
+
+    .cover-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 60%;
+    }
+
+    .cover-index {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: var(--serif);
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: .08em;
+      color: rgba(255, 255, 255, .95);
+      background: rgba(25, 25, 20, .38);
+      padding: 6px 11px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(25, 25, 20, .08), transparent 30%);
+    }
+
+    .card-body {
+      padding: 15px 17px 17px;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--faint);
+    }
+
+    .card-title {
+      margin: 12px 0 7px;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: 21px;
+      letter-spacing: .03em;
+    }
+
+    .card-learn {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .plan-panel {
+      max-width: 760px;
+      margin: clamp(72px, 11vh, 118px) auto 0;
+      padding: 0 24px;
+      scroll-margin-top: 28px;
+    }
+
+    .plan-kicker {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: .3em;
+      color: var(--faint);
+    }
+
+    .plan-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: clamp(26px, 5vw, 42px);
+    }
+
+    .plan-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+
+    .plan-card h2 {
+      margin: 18px 0 10px;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: clamp(26px, 4vw, 36px);
+      line-height: 1.35;
+    }
+
+    .plan-desc {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .steps {
+      list-style: none;
+      margin: 34px 0 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .step {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px 18px 18px;
+      background: var(--bg);
+    }
+
+    .step-num {
+      display: block;
+      font-family: var(--serif);
+      font-size: 15px;
+      color: var(--faint);
+      margin-bottom: 14px;
+    }
+
+    .step h3 {
+      margin: 0 0 7px;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .step-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .step-link:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .step p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--faint);
+      line-height: 2;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 8px);
+      background: var(--ink);
+      color: var(--bg);
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      box-shadow: 0 12px 34px rgba(25, 25, 20, .22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 60;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 1000px) {
+      .cards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .topbar-center {
+        display: none;
+      }
+
+      .topbar-right .text-link {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .card-body {
+        padding: 12px 14px 14px;
+      }
+
+      .card-title {
+        font-size: 18px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-meta {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+
+      .prompt-meta .pill {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .wordmark {
+        font-size: 14px;
+      }
+
+      .topbar-right .pill {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .hero h1 {
+        font-size: 17.5vw;
+      }
+
+      .eyebrow {
+        letter-spacing: .2em;
+      }
+
+      .eyebrow::before,
+      .eyebrow::after {
+        width: 12px;
+        margin: 0 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="wordmark" href="#main" aria-label="小白学菜 首页">
+        <span class="wordmark-dot" aria-hidden="true"></span>小白学菜
+      </a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-haspopup="true">
+          板块
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
+          <a class="nav-link" href="courses.html"><span>闯关计划</span><small>去闯关</small></a>
+          <a class="nav-link" href="#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="taste.html"><span>我的口味</span></a>
+          <a class="nav-link" href="kitchen.html"><span>我的厨房</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <p class="topbar-center">
+      <span>从零开始，学会做菜</span>
+      <button class="help" id="helpBtn" aria-label="了解小白学菜">i</button>
+    </p>
+
+    <div class="topbar-right">
+      <a class="text-link" href="#">登录</a>
+      <a class="pill" href="#prompt">开始第一课</a>
+    </div>
+  </header>
+
+  <div class="help-tip hidden" id="helpTip">
+    小白学菜是给完全没下过厨的人设计的练习站：每道菜只教一个重点，
+    从最不容易翻车的一道开始，练会一道再学下一道。
+  </div>
+
+  <main id="main">
+    <section class="hero" id="prompt">
+      <p class="eyebrow">从零开始学做菜</p>
+      <h1>小白学菜</h1>
+
+      <div class="prompt">
+        <div class="prompt-rail" aria-hidden="true"></div>
+        <p class="prompt-head">告诉我们你的起点</p>
+        <p class="prompt-sub">说得越具体，给你的练习计划就越贴你</p>
+        <div class="prompt-card">
+          <textarea id="tellInput" aria-label="告诉我们你的起点">我只会煮泡面，周末想学会给家里人做两菜一汤</textarea>
+          <div class="prompt-meta">
+            <button class="pill" id="planBtn">生成我的练习计划</button>
+            <div class="prompt-hints">
+              <button class="example-btn" id="exampleBtn">换个例子试试</button>
+              <span>不用注册</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="plan-panel hidden" id="planPanel" aria-live="polite">
+      <p class="plan-kicker">给你的第一周练习计划</p>
+      <div class="plan-card">
+        <span class="plan-badge" id="planBadge">第 1 关 · 基础</span>
+        <h2 id="planTitle">先从一顿饭练起</h2>
+        <p class="plan-desc" id="planDesc">三道菜递进练习，每道只解决一个新问题。</p>
+        <ol class="steps" id="planSteps"></ol>
+      </div>
+    </section>
+
+    <section class="feed" id="feed">
+      <div class="feed-head">
+        <p class="eyebrow">练习菜预览</p>
+        <h2>先认识几道不翻车的菜</h2>
+        <p>每道菜都配了来自下厨房的成品实拍图；卡片上标的是它教你的本领和所需时间。</p>
+      </div>
+      <div class="cards" id="cardGrid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>小白学菜 · 概念原型</p>
+    <p>成品实拍图来自下厨房用户菜谱，每道菜详情页均已标注对应图源。</p>
+    <p>设计灵感参考 Sorrel — Cooking Inspiration</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const DISHES = [
+      {
+        no: "01",
+        name: "番茄炒蛋",
+        href: "recipes/fanqie-chao-dan.html",
+        img: "assets/dishes/fanqie-chao-dan.jpg",
+        colorA: "#f3dcc2",
+        colorB: "#e7b98f",
+        lesson: "第 1 课 · 基础",
+        time: "15 分钟",
+        cost: "约 ¥6",
+        learn: "学调蛋液、判断火候——你炒出的第一道“熟菜”。"
+      },
+      {
+        no: "02",
+        name: "可乐鸡翅",
+        href: "recipes/kele-jichi.html",
+        img: "assets/dishes/kele-jichi.jpg",
+        colorA: "#ecd5cb",
+        colorB: "#d4a28c",
+        lesson: "第 2 课 · 调味",
+        time: "35 分钟",
+        cost: "约 ¥18",
+        learn: "学焯水、上色和收汁，第一次做“端得上桌”的硬菜。"
+      },
+      {
+        no: "03",
+        name: "蒜蓉炒青菜",
+        href: "recipes/suancheng-chao-qingcai.html",
+        img: "assets/dishes/suancheng-chao-qingcai.jpg",
+        colorA: "#dde5d0",
+        colorB: "#aec99a",
+        lesson: "第 3 课 · 火候",
+        time: "10 分钟",
+        cost: "约 ¥5",
+        learn: "学大火快炒，青菜翠绿不出水，一桌饭离不开它。"
+      },
+      {
+        no: "04",
+        name: "电饭煲腊肠焖饭",
+        href: "recipes/dianfanbao-lachang-menfan.html",
+        img: "assets/dishes/dianfanbao-lachang-menfan.jpg",
+        colorA: "#efdfc0",
+        colorB: "#dbb98a",
+        lesson: "第 4 课 · 一锅出",
+        time: "40 分钟",
+        cost: "约 ¥15",
+        learn: "学米水配比和切配顺序，只洗一个锅也能开饭。"
+      },
+      {
+        no: "05",
+        name: "冬瓜丸子汤",
+        href: "recipes/donggua-wanzi-tang.html",
+        img: "assets/dishes/donggua-wanzi-tang.jpg",
+        colorA: "#dce9e6",
+        colorB: "#9fc6c3",
+        lesson: "第 5 课 · 汤",
+        time: "25 分钟",
+        cost: "约 ¥12",
+        learn: "学汆丸子不散、汤底不浊，学会后举一反三。"
+      },
+      {
+        no: "06",
+        name: "香煎鸡胸肉",
+        href: "recipes/xiangjian-jixiong.html",
+        img: "assets/dishes/xiangjian-jixiong.jpg",
+        colorA: "#eedcc9",
+        colorB: "#cfaa80",
+        lesson: "第 6 课 · 控火",
+        time: "20 分钟",
+        cost: "约 ¥8",
+        learn: "学中小火慢煎，鸡胸肉也能嫩而不柴。"
+      },
+      {
+        no: "07",
+        name: "麻婆豆腐",
+        href: "recipes/mapo-doufu.html",
+        img: "assets/dishes/mapo-doufu.jpg",
+        colorA: "#eccfc8",
+        colorB: "#d4927f",
+        lesson: "第 7 课 · 酱汁",
+        time: "25 分钟",
+        cost: "约 ¥10",
+        learn: "学调一个咸麻微辣的酱汁，下饭神器。"
+      },
+      {
+        no: "08",
+        name: "黄瓜拌木耳",
+        href: "recipes/huanggua-ban-muer.html",
+        img: "assets/dishes/huanggua-ban-muer.jpg",
+        colorA: "#dce5d8",
+        colorB: "#a7c8aa",
+        lesson: "第 8 课 · 凉拌",
+        time: "10 分钟",
+        cost: "约 ¥5",
+        learn: "学一套万能凉拌汁，以后拌什么都心里有数。"
+      },
+      {
+        no: "09",
+        name: "凉拌黄瓜",
+        href: "recipes/liangban-huanggua.html",
+        img: "assets/dishes/liangban-huanggua.jpg",
+        colorA: "#e3ecd8",
+        colorB: "#b3cd9f",
+        lesson: "第 9 课 · 拍黄瓜",
+        time: "10 分钟",
+        cost: "约 ¥5",
+        learn: "学拍黄瓜和万能凉拌汁，天热时最解腻的一道凉菜。"
+      }
+    ];
+
+    const SAMPLES = [
+      "我只会煮泡面，周末想学会给家里人做两菜一汤",
+      "上班带饭，想学几道不怕放凉的减脂便当",
+      "完全没下过厨，先从最不容易翻车的一道菜开始"
+    ];
+
+    const ROUTES = [
+      {
+        match: ["家人", "两菜一汤", "周末"],
+        badge: "第 1 关 · 周末家宴",
+        title: "周末给家人做一顿两菜一汤",
+        desc: "不用一次学会很多，三道菜各练一个重点，周末按顺序做熟。",
+        steps: [
+          { name: "番茄炒蛋", learn: "先练熟第一道炒菜，掌握油温与调味", url: "recipes/fanqie-chao-dan.html" },
+          { name: "蒜蓉炒青菜", learn: "补一道绿叶菜，学大火快炒不出水", url: "recipes/suancheng-chao-qingcai.html" },
+          { name: "冬瓜丸子汤", learn: "最后学会做汤，凑齐两菜一汤", url: "recipes/donggua-wanzi-tang.html" }
+        ]
+      },
+      {
+        match: ["便当", "减脂", "带饭", "健康"],
+        badge: "第 1 关 · 便当路线",
+        title: "先凑齐一份不怕放凉的减脂便当",
+        desc: "肉类、蔬菜、主食三格分开练，每道都适合提前一晚做好。",
+        steps: [
+          { name: "香煎鸡胸肉", learn: "先解决“肉”这一格，学会煎出嫩鸡胸", url: "recipes/xiangjian-jixiong.html" },
+          { name: "蒜蓉炒西兰花", learn: "补上“蔬菜”这一格，颜色和口感都稳" },
+          { name: "电饭煲杂粮焖饭", learn: "最后搞定“主食”，一锅出更省事" }
+        ]
+      },
+      {
+        match: ["泡面", "没下过厨", "零基础", "不会"],
+        badge: "第 1 关 · 基础",
+        title: "第一周，只练会三道基本功",
+        desc: "从不会到能独立开火，先从最不容易翻车的三道练起。",
+        steps: [
+          { name: "番茄炒蛋", learn: "学调蛋液和判断油温，先会炒", url: "recipes/fanqie-chao-dan.html" },
+          { name: "电饭煲腊肠焖饭", learn: "学一锅出，不盯着锅也不会焦", url: "recipes/dianfanbao-lachang-menfan.html" },
+          { name: "蒜蓉炒青菜", learn: "补上青菜，一餐开始像个样子", url: "recipes/suancheng-chao-qingcai.html" }
+        ]
+      }
+    ];
+
+    const cardGrid = document.getElementById("cardGrid");
+    const tellInput = document.getElementById("tellInput");
+    const planBtn = document.getElementById("planBtn");
+    const exampleBtn = document.getElementById("exampleBtn");
+    const planPanel = document.getElementById("planPanel");
+    const planBadge = document.getElementById("planBadge");
+    const planTitle = document.getElementById("planTitle");
+    const planDesc = document.getElementById("planDesc");
+    const planSteps = document.getElementById("planSteps");
+
+    function renderCards() {
+      cardGrid.innerHTML = DISHES.map(dish => {
+        const card = `
+          <article class="card">
+          <div class="cover" style="--a:${dish.colorA};--b:${dish.colorB}">
+            <img class="cover-photo" src="${dish.img}" alt="${dish.name}成品实拍图" loading="lazy">
+            <span class="cover-index" aria-hidden="true">${dish.no}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span>${dish.lesson}</span>
+              <span>${dish.time}</span>
+            </div>
+            <h3 class="card-title">${dish.name}</h3>
+            <p class="card-learn">${dish.learn}</p>
+          </div>
+        </article>`;
+        return dish.href
+          ? `<a class="card-link" href="${dish.href}" aria-label="打开${dish.name}菜谱">${card}</a>`
+          : card;
+      }).join("");
+    }
+
+    function pickRoute(text) {
+      const input = text || SAMPLES[0];
+      const hit = ROUTES.find(route =>
+        route.match.some(keyword => input.includes(keyword))
+      );
+      return hit || ROUTES[2];
+    }
+
+    function renderPlan(route) {
+      planBadge.textContent = route.badge;
+      planTitle.textContent = route.title;
+      planDesc.textContent = route.desc;
+      planSteps.innerHTML = route.steps.map((step, index) => `
+        <li class="step">
+          <span class="step-num">STEP ${String(index + 1).padStart(2, "0")}</span>
+          <h3>${step.url ? `<a class="step-link" href="${step.url}">${step.name}</a>` : step.name}</h3>
+          <p>${step.learn}</p>
+        </li>
+      `).join("");
+    }
+
+    planBtn.addEventListener("click", () => {
+      const route = pickRoute(tellInput.value.trim());
+      planBtn.disabled = true;
+      planBtn.textContent = "正在为你安排…";
+      setTimeout(() => {
+        renderPlan(route);
+        planPanel.classList.remove("hidden");
+        planBtn.disabled = false;
+        planBtn.textContent = "再给我安排一次";
+        planPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 650);
+    });
+
+    let sampleIndex = 0;
+    exampleBtn.addEventListener("click", () => {
+      sampleIndex = (sampleIndex + 1) % SAMPLES.length;
+      tellInput.value = SAMPLES[sampleIndex];
+      tellInput.focus();
+    });
+
+    const menuBtn = document.getElementById("menuBtn");
+    const menuPop = document.getElementById("menuPop");
+    const helpBtn = document.getElementById("helpBtn");
+    const helpTip = document.getElementById("helpTip");
+    const toast = document.getElementById("toast");
+
+    menuBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = menuPop.classList.toggle("hidden") === false;
+      menuBtn.setAttribute("aria-expanded", String(open));
+    });
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", (event) => {
+        const name = link.dataset.nav;
+        menuPop.classList.add("hidden");
+        menuBtn.setAttribute("aria-expanded", "false");
+        if (name) {
+          event.preventDefault();
+          showToast(`「${name}」板块会在下一步搭建，先看看首页效果`);
+        }
+      });
+    });
+
+    helpBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      helpTip.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!menuPop.classList.contains("hidden") &&
+          !menuWrapContains(event.target)) {
+        menuPop.classList.add("hidden");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+      if (!helpTip.classList.contains("hidden") && event.target !== helpBtn) {
+        helpTip.classList.add("hidden");
+      }
+    });
+
+    function menuWrapContains(target) {
+      const wrap = document.querySelector(".menu-wrap");
+      return wrap && wrap.contains(target);
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>

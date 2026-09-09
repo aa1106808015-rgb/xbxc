@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>番茄炒蛋 · 小白学菜</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --paper: #fffdf8;
+      --ink: #191914;
+      --muted: #6e6c63;
+      --faint: #a09e94;
+      --line: rgba(25, 25, 20, .13);
+      --line-soft: rgba(25, 25, 20, .07);
+      --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+      --sans: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .skip {
+      position: absolute;
+      left: -999px;
+      top: 12px;
+      z-index: 50;
+      padding: 10px 16px;
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 999px;
+      text-decoration: none;
+    }
+
+    .skip:focus {
+      left: 12px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      min-height: 68px;
+      padding: 0 clamp(20px, 4vw, 46px);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      min-width: 0;
+    }
+
+    .topbar-left {
+      justify-content: flex-start;
+    }
+
+    .topbar-right {
+      justify-content: flex-end;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: .04em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .wordmark-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+      flex: none;
+    }
+
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 7px 4px;
+    }
+
+    .menu-btn:hover {
+      color: var(--ink);
+    }
+
+    .menu-btn svg {
+      transition: transform .2s ease;
+    }
+
+    .menu-btn[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    .menu-pop {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 260px;
+      padding: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(25, 25, 20, .09);
+      z-index: 30;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 13px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .nav-link:hover {
+      background: var(--line-soft);
+    }
+
+    .nav-link small {
+      font-size: 12px;
+      color: var(--faint);
+    }
+
+    .topbar-center {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .text-link {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .text-link:hover {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 14px;
+      font-weight: 550;
+      text-decoration: none;
+      border: 1px solid var(--ink);
+      transition: transform .16s ease, opacity .16s ease;
+      white-space: nowrap;
+    }
+
+    .pill:hover {
+      transform: translateY(-1px);
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 clamp(20px, 4vw, 46px);
+    }
+
+    .recipe-hero {
+      padding: clamp(54px, 8vh, 92px) 0 0;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 26px;
+      font-size: 13px;
+      color: var(--faint);
+    }
+
+    .crumb a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .crumb a:hover {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: clamp(40px, 6vw, 84px);
+      align-items: center;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: .1em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .badge-dark {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .recipe-hero h1 {
+      margin: 0 0 14px;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: clamp(52px, 7vw, 92px);
+      line-height: 1.08;
+      letter-spacing: .01em;
+    }
+
+    .recipe-tagline {
+      margin: 0 0 18px;
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .recipe-lead {
+      margin: 0 0 26px;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .meta {
+      margin: 0 0 26px;
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, auto);
+      justify-content: start;
+      gap: clamp(24px, 4vw, 54px);
+    }
+
+    .meta div {
+      min-width: 62px;
+    }
+
+    .meta dt {
+      font-size: 12px;
+      color: var(--faint);
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .meta dd {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-actions .pill {
+      padding: 12px 26px;
+      font-size: 15px;
+    }
+
+    .dish-cover {
+      position: relative;
+      aspect-ratio: 5 / 4;
+      border-radius: 28px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      background: linear-gradient(140deg, #f3dcc2, #e7b98f);
+      border: 1px solid var(--line);
+    }
+
+    .dish-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 60%;
+      background: var(--paper);
+    }
+
+    .dish-cover .index {
+      position: absolute;
+      right: 14px;
+      bottom: 12px;
+      z-index: 2;
+      font-family: var(--serif);
+      font-size: 13px;
+      line-height: 1;
+      letter-spacing: .08em;
+      color: rgba(255, 255, 255, .95);
+      background: rgba(25, 25, 20, .42);
+      padding: 6px 11px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      user-select: none;
+    }
+
+    .photo-credit {
+      position: absolute;
+      left: 12px;
+      bottom: 11px;
+      z-index: 2;
+      font-size: 11px;
+      line-height: 1;
+      color: rgba(255, 255, 255, .92);
+      text-shadow: 0 1px 3px rgba(25, 25, 20, .4);
+      margin: 0;
+      user-select: none;
+    }
+
+    .photo-credit a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .dish-cover .icon,
+    .dish-cover .note {
+      display: none;
+    }
+
+    .dish-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(25, 25, 20, .12), transparent 32%);
+    }
+
+    @media (max-width: 620px) {
+      .photo-credit {
+        display: none;
+      }
+    }
+
+    .dish-cover .note {
+      position: absolute;
+      left: 18px;
+      bottom: 14px;
+      font-size: 12px;
+      color: rgba(25, 25, 20, .5);
+      background: rgba(255, 255, 255, .34);
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    .page-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin-top: clamp(64px, 9vh, 100px);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 247, 244, .9);
+      backdrop-filter: blur(8px);
+    }
+
+    .page-nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .page-nav a {
+      display: block;
+      padding: 16px 18px;
+      font-size: 13.5px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .page-nav a:hover {
+      color: var(--ink);
+    }
+
+    .section {
+      padding: clamp(76px, 10vh, 118px) 0 0;
+      scroll-margin-top: 60px;
+    }
+
+    .section-head {
+      max-width: 720px;
+      margin-bottom: clamp(34px, 5vh, 52px);
+    }
+
+    .kicker {
+      margin: 0 0 12px;
+      font-size: 12px;
+      letter-spacing: .3em;
+      color: var(--faint);
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.35;
+    }
+
+    .section-head p {
+      margin: 12px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .goal {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .goal strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .goal span {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .learn-note {
+      margin-top: 18px;
+      padding: 18px 22px;
+      border: 1px dashed rgba(25, 25, 20, .22);
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .learn-note b {
+      color: var(--ink);
+    }
+
+    .ing-list {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .ing-item {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(160px, 240px) 1.2fr;
+      gap: 18px;
+      align-items: baseline;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .ing-item:last-child {
+      border-bottom: 0;
+    }
+
+    .ing-item .name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .ing-item .amount {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .ing-item .why {
+      font-size: 13px;
+      color: var(--faint);
+      line-height: 1.7;
+    }
+
+    .tool-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: recipeStep;
+    }
+
+    .steps.no-reset {
+      counter-reset: none;
+    }
+
+    .step {
+      counter-increment: recipeStep;
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) minmax(210px, 300px);
+      gap: clamp(22px, 4vw, 48px);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: clamp(22px, 3.4vw, 34px);
+      position: relative;
+    }
+
+    .step-photo {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      object-position: center 60%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      align-self: center;
+    }
+
+    .step-left {
+      padding-top: 4px;
+    }
+
+    .step-no {
+      display: block;
+      font-family: var(--serif);
+      font-size: 15px;
+      color: var(--faint);
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    .step-no::before {
+      content: counter(recipeStep, decimal-leading-zero);
+      font-size: 38px;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .step-time {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .step-body h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: .02em;
+    }
+
+    .step-body > p {
+      margin: 0;
+      font-size: 14.5px;
+      line-height: 1.95;
+      color: var(--muted);
+    }
+
+    .check {
+      margin: 14px 0 0 !important;
+      padding: 12px 15px;
+      background: var(--bg);
+      border-radius: 12px;
+      font-size: 13.5px !important;
+      color: var(--ink) !important;
+      line-height: 1.8;
+    }
+
+    .check b {
+      color: var(--ink);
+    }
+
+    .phase-mark {
+      display: inline-block;
+      margin-bottom: 26px;
+      font-size: 12px;
+      letter-spacing: .28em;
+      color: var(--faint);
+    }
+
+    .rescue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    details {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      font-size: 20px;
+      color: var(--faint);
+      font-weight: 400;
+      transition: transform .2s ease;
+    }
+
+    details[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .rescue-body {
+      padding: 0 22px 20px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--muted);
+      display: grid;
+      gap: 8px;
+    }
+
+    .rescue-body p {
+      margin: 0;
+    }
+
+    .done-list {
+      list-style: none;
+      margin: 0 0 40px;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .done-list li {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .done-list i {
+      flex: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--bg);
+      font-style: normal;
+      font-size: 13px;
+      display: grid;
+      place-items: center;
+    }
+
+    .done-list div b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .done-list div span {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .next-wrap {
+      border-top: 1px solid var(--line);
+      padding-top: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .next-wrap p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .next-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      text-decoration: none;
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 18px;
+      padding: 16px 22px;
+      transition: transform .18s ease;
+    }
+
+    .next-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .next-card small {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .16em;
+      color: rgba(247, 247, 244, .7);
+      margin-bottom: 4px;
+    }
+
+    .next-card strong {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .next-card .arrow {
+      margin-left: 12px;
+    }
+
+    footer {
+      margin-top: clamp(90px, 13vh, 140px);
+      border-top: 1px solid var(--line);
+      padding: 34px 24px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--faint);
+      line-height: 2;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 8px);
+      background: var(--ink);
+      color: var(--bg);
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      box-shadow: 0 12px 34px rgba(25, 25, 20, .22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 60;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dish-cover {
+        max-width: 560px;
+      }
+
+      .goal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .done-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .topbar-center {
+        display: none;
+      }
+
+      .topbar-right .text-link {
+        display: none;
+      }
+
+      .ing-item {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .ing-item .why {
+        grid-column: 1 / -1;
+        padding-top: 4px;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .step-photo {
+        margin-top: 10px;
+        max-width: 480px;
+      }
+
+      .step-left {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .step-no::before {
+        display: inline;
+        margin: 0 10px 0 0;
+        font-size: 18px;
+      }
+
+      .step-no {
+        display: flex;
+        align-items: center;
+        margin: 0;
+      }
+
+      .meta {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+
+      .page-nav a {
+        padding: 13px 12px;
+        font-size: 12.5px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .wordmark {
+        font-size: 14px;
+      }
+
+      .topbar-right .pill {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .recipe-hero h1 {
+        font-size: 52px;
+      }
+
+      .ing-item {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 15px 18px;
+      }
+
+      .ing-item .why {
+        grid-column: auto;
+      }
+
+      .next-card {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="wordmark" href="../index.html" aria-label="小白学菜 首页">
+        <span class="wordmark-dot" aria-hidden="true"></span>小白学菜
+      </a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-haspopup="true">
+          板块
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
+          <a class="nav-link" href="../courses.html"><span>闯关计划</span><small>去闯关</small></a>
+          <a class="nav-link" href="../index.html#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="../taste.html"><span>我的口味</span></a>
+          <a class="nav-link" href="../kitchen.html"><span>我的厨房</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <p class="topbar-center">从零开始，学会做菜</p>
+
+    <div class="topbar-right">
+      <a class="text-link" href="../index.html">登录</a>
+      <a class="pill" href="#steps">开始练习</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap">
+      <section class="recipe-hero">
+        <div class="hero-grid">
+          <div>
+            <nav class="crumb" aria-label="面包屑">
+              <a href="../index.html">练习菜库</a>
+              <span>/</span>
+              <span>番茄炒蛋</span>
+            </nav>
+
+            <div class="badge-row">
+              <span class="badge badge-dark">第 1 课 · 基础</span>
+              <span class="badge">新手推荐</span>
+              <span class="badge">翻车可补救</span>
+            </div>
+
+            <h1>番茄炒蛋</h1>
+            <p class="recipe-tagline">你学会的第一道真正“炒”出来的菜。</p>
+            <p class="recipe-lead">整道菜只练一件事：把鸡蛋炒嫩。番茄负责出汁、调味负责平衡，成功标准很明确——蛋是大块嫩黄的，不是碎渣。</p>
+
+            <dl class="meta">
+              <div><dt>难度</dt><dd>★☆☆☆☆</dd></div>
+              <div><dt>用时</dt><dd>15 分钟</dd></div>
+              <div><dt>份量</dt><dd>2 人份</dd></div>
+              <div><dt>花费</dt><dd>约 ¥6</dd></div>
+            </dl>
+
+            <div class="hero-actions">
+              <a class="pill" href="#ingredients">开始练习</a>
+              <a class="text-link" href="../index.html">← 回练习菜库</a>
+            </div>
+          </div>
+
+          <figure class="dish-cover">
+            <img class="dish-photo" src="../assets/dishes/fanqie-chao-dan.jpg" alt="番茄炒蛋成品实拍图">
+            <span class="index" aria-hidden="true">01</span>
+            <figcaption class="photo-credit">成品图：<a href="https://www.xiachufang.com/recipe/104493058/" target="_blank" rel="noopener">下厨房</a></figcaption>
+          </figure>
+        </div>
+      </section>
+    </div>
+
+    <nav class="page-nav" aria-label="本页内容导航">
+      <div class="wrap">
+        <ul>
+          <li><a href="#goal">本课目标</a></li>
+          <li><a href="#ingredients">用料</a></li>
+          <li><a href="#steps">步骤</a></li>
+          <li><a href="#rescue">翻车急救</a></li>
+          <li><a href="#done">通关标准</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="wrap">
+      <section class="section" id="goal">
+        <div class="section-head">
+          <p class="kicker">01 · 本课目标</p>
+          <h2>为什么第一课是它？</h2>
+          <p>因为它的反馈非常直接：油温对不对、火候过了没有，一眼就能看出来，而且失败了大不了当“番茄炒蛋碎”吃。</p>
+        </div>
+        <div class="goal-grid">
+          <div class="goal">
+            <strong>材料超级少</strong>
+            <span>主料只有番茄和鸡蛋，调味只需盐和糖，楼下超市随时能买齐。</span>
+          </div>
+          <div class="goal">
+            <strong>只盯一口锅</strong>
+            <span>全程在一个锅里完成，不用同时开两个灶，节奏很慢，适合新手。</span>
+          </div>
+          <div class="goal">
+            <strong>练的是基本功</strong>
+            <span>“判断油温”和“蛋不要炒老”这两招，之后做蛋炒饭、滑蛋虾仁都会用到。</span>
+          </div>
+        </div>
+        <p class="learn-note">
+          <b>本课记住一句话：</b>蛋液下锅前，先确认油温够了；下锅后，看到大块蛋刚凝固就立刻盛出来，不要让它在锅里等。
+        </p>
+      </section>
+
+      <section class="section" id="ingredients">
+        <div class="section-head">
+          <p class="kicker">02 · 用料</p>
+          <h2>买这些就够了</h2>
+          <p>番茄尽量挑熟软的，捏起来微微发软、闻着有番茄味的那种，更容易炒出红汁。</p>
+        </div>
+
+        <div class="ing-list">
+          <div class="ing-item">
+            <span class="name">番茄</span>
+            <span class="amount">2 个（约 300 克）</span>
+            <span class="why">选熟软的；太硬的番茄不出汁，味道也寡淡。</span>
+          </div>
+          <div class="ing-item">
+            <span class="name">鸡蛋</span>
+            <span class="amount">3 个</span>
+            <span class="why">提前 10 分钟从冰箱拿出来回温。</span>
+          </div>
+          <div class="ing-item">
+            <span class="name">小葱</span>
+            <span class="amount">1 根</span>
+            <span class="why">切成葱花，出锅前撒。</span>
+          </div>
+          <div class="ing-item">
+            <span class="name">盐</span>
+            <span class="amount">约 1/2 小勺</span>
+            <span class="why">分两次用：一半进蛋液，一半最后调味。</span>
+          </div>
+          <div class="ing-item">
+            <span class="name">白糖</span>
+            <span class="amount">1/2 – 1 小勺</span>
+            <span class="why">先加糖平衡酸味；没有固定的量，尝着来。</span>
+          </div>
+          <div class="ing-item">
+            <span class="name">食用油</span>
+            <span class="amount">约 2 汤匙</span>
+            <span class="why">炒蛋时比平时多放一点，蛋才蓬松不粘。</span>
+          </div>
+        </div>
+        <p class="tool-note">还需要：一口不粘锅或铁锅、锅铲、一个大碗、一个盘子、一双筷子。新手阶段建议先用不粘锅，能少一半心理负担。</p>
+      </section>
+
+      <section class="section" id="steps">
+        <div class="section-head">
+          <p class="kicker">03 · 跟着做</p>
+          <h2>八步，从备菜到出锅</h2>
+          <p>每一步后面都写了“看到这样算对”，那是给你对照用的检查点，不用背，做的时候低头看一眼就行。</p>
+        </div>
+
+        <p class="phase-mark">第一段 · 开火前准备（约 4 分钟）</p>
+        <ol class="steps">
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">备菜 · 约 2 分钟</span>
+            </div>
+            <div class="step-body">
+              <h3>番茄切块，小葱切碎</h3>
+              <p>番茄洗净去蒂，切成约 2–3 厘米的块；小葱切成葱花。切好的番茄和葱花分别放在小盘子里。</p>
+              <p class="check"><b>看到这样算对：</b>番茄块大小差不多，切口能看到汁水；不要切成小碎丁，否则一下锅就化成水。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step01.jpg" alt="第 01 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">备菜 · 约 2 分钟</span>
+            </div>
+            <div class="step-body">
+              <h3>打蛋液</h3>
+              <p>鸡蛋全部磕进大碗，加入一半的盐和半勺清水，用筷子快速画圈搅打约 30 秒，直到颜色均匀、表面浮起小泡。</p>
+              <p class="check"><b>看到这样算对：</b>蛋液里没有一整块蛋黄，提起来是流畅的一条线；水不用多，小半勺就够。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step02.jpg" alt="第 02 步过程参考图" loading="lazy">
+          </li>
+        </ol>
+
+        <p class="phase-mark" style="margin-top: 44px;">第二段 · 下锅开炒（约 9 分钟）</p>
+        <ol class="steps no-reset">
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">炒蛋 · 约 30 秒</span>
+            </div>
+            <div class="step-body">
+              <h3>试油温，再倒蛋液</h3>
+              <p>大火把锅烧热约 20 秒，倒入一汤匙半油并摇匀。用筷子尖滴一滴蛋液进油里试温：蛋液立刻鼓起大泡、边缘翻起来，就说明油温够了。转中火，把蛋液倒进锅中央。</p>
+              <p class="check"><b>看到这样算对：</b>蛋液一下锅就快速鼓起，不是慢慢摊开；如果冒很浓的白烟，说明油太热，先关火等 10 秒再继续。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step03.jpg" alt="第 03 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">炒蛋 · 约 30 秒</span>
+            </div>
+            <div class="step-body">
+              <h3>不要马上翻，等底部凝固再推</h3>
+              <p>蛋液入锅后先别动。等底部凝固、表面还带一点湿润时，用锅铲从边缘往中间轻轻推，让还没熟的蛋液流到锅底，推成大块。</p>
+              <p class="check"><b>看到这样算对：</b>蛋是几大块嫩黄色，不是一堆碎末；表面还有微微湿润的光泽，就立刻进行下一步。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step04.jpg" alt="第 04 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">盛出 · 10 秒</span>
+            </div>
+            <div class="step-body">
+              <h3>连油盛出，别留在锅里</h3>
+              <p>鸡蛋刚全部凝固就盛到盘里或碗里。记住：盛出来时要比你觉得“刚好”再嫩一点，因为余温会让它继续变熟。</p>
+              <p class="check"><b>看到这样算对：</b>盘里的蛋块表面微微发光、捏一下有弹性；如果颜色发干发黄，就是炒过头了，下次提前 10 秒盛。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step05.jpg" alt="第 05 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">炒番茄 · 2–3 分钟</span>
+            </div>
+            <div class="step-body">
+              <h3>不洗锅，直接炒番茄</h3>
+              <p>锅里再补半汤匙油，中火下番茄。用锅铲的背面轻轻按压番茄块，让果肉贴着锅底，炒到边角变软、锅底出现红汁。</p>
+              <p class="check"><b>看到这样算对：</b>番茄皮微微起皱，锅底有明显红汁，而不是干巴巴的；如果 2 分钟还没出汁，把火稍微调小、继续压。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step06.jpg" alt="第 06 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">回锅 · 15–20 秒</span>
+            </div>
+            <div class="step-body">
+              <h3>先加糖调味，再倒回鸡蛋</h3>
+              <p>先加糖翻匀，尝一小块番茄判断酸甜；不够咸再补剩下的一半盐。然后把鸡蛋倒回锅里，转大火快速翻 15 秒，让每块蛋都裹上番茄汁。</p>
+              <p class="check"><b>看到这样算对：</b>鸡蛋表面均匀挂上红汁，汤汁还留一点在锅底，不要收到全干——那一点汁是拌饭的灵魂。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step07.jpg" alt="第 07 步过程参考图" loading="lazy">
+          </li>
+
+          <li class="step">
+            <div class="step-left">
+              <span class="step-no">STEP</span>
+              <span class="step-time">出锅 · 10 秒</span>
+            </div>
+            <div class="step-body">
+              <h3>撒葱花，关火装盘</h3>
+              <p>关火，撒上葱花，把菜盛进盘子。盘底带一点红汁很正常，不用回锅收干。</p>
+              <p class="check"><b>看到这样算对：</b>蛋块完整、番茄软烂、汁水能流动；尝一口，酸甜咸平衡，不齁也不寡淡。</p>
+            </div>
+            <img class="step-photo" src="../assets/steps/fanqie-chao-dan/step08.jpg" alt="第 08 步过程参考图" loading="lazy">
+          </li>
+        </ol>
+      </section>
+
+      <section class="section" id="rescue">
+        <div class="section-head">
+          <p class="kicker">04 · 翻车急救站</p>
+          <h2>做坏了也别慌</h2>
+          <p>新手翻车几乎都集中在这四类，点开看原因和现在的补救办法。</p>
+        </div>
+
+        <div class="rescue-list">
+          <details open>
+            <summary>蛋炒碎了，或者炒老了</summary>
+            <div class="rescue-body">
+              <p><b>为什么：</b>油温不够就下锅，或下锅后翻得太勤；也可能是盛得太晚，留在锅里被余热继续加热。</p>
+              <p><b>现在怎么办：</b>别倒掉。把蛋碎倒回番茄汁里关小火翻匀，就是一碗“番茄蛋花”版本，味道照样不差。</p>
+              <p><b>下次避免：</b>油热到滴蛋液立刻鼓起再下锅；入锅后先等底部凝固，再轻轻推成大块。</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>番茄不出汁，整道菜干干的</summary>
+            <div class="rescue-body">
+              <p><b>为什么：</b>番茄不够熟、切得太大块，或者火太小。</p>
+              <p><b>现在怎么办：</b>把火调小一点，用锅铲背持续压番茄，大约 1 分钟就会开始出水；还不行就加一勺开水，不要加冷水。</p>
+              <p><b>下次避免：</b>买捏起来微微发软的番茄，切块别超过 3 厘米。</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>味道太酸、太咸或太甜</summary>
+            <div class="rescue-body">
+              <p><b>为什么：</b>番茄酸度不一样，盐又分两次加，调味时只凭感觉很容易过量。</p>
+              <p><b>现在怎么办：</b>太酸就少量补糖，每次 1/4 小勺尝一次；太咸可以再加一点番茄或一小勺水稀释；太甜就补一点点盐。</p>
+              <p><b>下次避免：</b>糖和盐都分次加，最后一定要先尝再出锅。</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>粘锅了</summary>
+            <div class="rescue-body">
+              <p><b>为什么：</b>油不够、锅没烧热就下蛋液，或下锅后一直不翻动。</p>
+              <p><b>现在怎么办：</b>先关火，把没粘住的部分盛出来，不要用锅铲硬刮黑渣。剩下的番茄正常炒，最后拌在一起不影响吃。</p>
+              <p><b>下次避免：</b>新手先热锅 20 秒再倒油；用不粘锅会轻松很多。</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="section" id="done">
+        <div class="section-head">
+          <p class="kicker">05 · 通关标准</p>
+          <h2>怎么算“学会了”？</h2>
+          <p>不用和菜谱一模一样，做到下面四条，这道菜就算练成了。</p>
+        </div>
+
+        <ul class="done-list">
+          <li>
+            <i>1</i>
+            <div>
+              <b>不看步骤能做完</b>
+              <span>从拿番茄到装盘，中间不卡壳、不用翻手机。</span>
+            </div>
+          </li>
+          <li>
+            <i>2</i>
+            <div>
+              <b>蛋是大块的嫩黄</b>
+              <span>不是碎末，表面还带一点湿润，吃进嘴里是嫩的。</span>
+            </div>
+          </li>
+          <li>
+            <i>3</i>
+            <div>
+              <b>番茄软烂出了汁</b>
+              <span>锅底有红汁，拌饭能吃出番茄味而不是“番茄味的汤”。</span>
+            </div>
+          </li>
+          <li>
+            <i>4</i>
+            <div>
+              <b>味道刚好平衡</b>
+              <span>酸甜咸都不突兀；别人吃完愿意再添一筷子。</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="next-wrap">
+          <p>练熟这一道后，可以进入第 3 课，学另一个基本功：大火快炒。</p>
+          <a class="next-card" href="suancheng-chao-qingcai.html">
+            <span>
+              <small>下一课建议</small>
+              <strong>蒜蓉炒青菜</strong>
+            </span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>小白学菜 · 番茄炒蛋样板页</p>
+    <p><a class="text-link" href="../index.html">回到首页</a></p>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const menuPop = document.getElementById("menuPop");
+    const toast = document.getElementById("toast");
+
+    menuBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = menuPop.classList.toggle("hidden") === false;
+      menuBtn.setAttribute("aria-expanded", String(open));
+    });
+
+    document.querySelectorAll(".nav-link[data-nav]").forEach(link => {
+      link.addEventListener("click", (event) => {
+        if (link.getAttribute("href") === "#") {
+          event.preventDefault();
+          const name = link.dataset.nav;
+          menuPop.classList.add("hidden");
+          menuBtn.setAttribute("aria-expanded", "false");
+          showToast(`「${name}」板块会在下一步搭建`);
+        }
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      const wrap = document.querySelector(".menu-wrap");
+      if (!menuPop.classList.contains("hidden") && wrap && !wrap.contains(event.target)) {
+        menuPop.classList.add("hidden");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+  </script>
+</body>
+</html>

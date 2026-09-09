@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的口味 · 小白学菜</title>
+  <link rel="stylesheet" href="recipes/recipe.css">
+  <style>
+    .taste-page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: clamp(50px, 8vh, 90px) 24px 0;
+    }
+
+    .taste-page h1 {
+      margin: 0 0 14px;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(58px, 9vw, 112px);
+      line-height: 1.1;
+      text-align: center;
+      letter-spacing: .02em;
+    }
+
+    .taste-sub {
+      margin: 0 auto clamp(42px, 6vh, 64px);
+      max-width: 520px;
+      text-align: center;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .saved-banner {
+      margin-bottom: 26px;
+      padding: 14px 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      font-size: 13.5px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .saved-banner a {
+      color: var(--ink);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .field {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: clamp(24px, 4vw, 36px);
+      margin-bottom: 18px;
+    }
+
+    .field-head {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .field-no {
+      flex: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+
+    .field-head h2 {
+      margin: 0 0 6px;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: 22px;
+    }
+
+    .field-head p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .field textarea {
+      width: 100%;
+      min-height: 92px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg);
+      font: 400 14.5px/1.8 var(--sans);
+      color: var(--ink);
+      resize: vertical;
+      outline: none;
+    }
+
+    .field textarea:focus {
+      border-color: var(--ink);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 8px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13.5px;
+      color: var(--muted);
+      background: var(--bg);
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .chip.selected {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .chip-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--faint);
+      line-height: 1.7;
+    }
+
+    .taste-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      margin: 30px 0 0;
+      flex-wrap: wrap;
+    }
+
+    .taste-actions .pill {
+      padding: 12px 30px;
+      font-size: 15px;
+    }
+
+    .ghost-btn {
+      font-size: 13px;
+      color: var(--faint);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .ghost-btn:hover {
+      color: var(--ink);
+    }
+
+    .result {
+      margin: 46px 0 0;
+      padding: clamp(26px, 4vw, 40px);
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 26px;
+    }
+
+    .result-kicker {
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: .28em;
+      color: rgba(247, 247, 244, .65);
+    }
+
+    .result h2 {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-weight: 550;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.35;
+    }
+
+    .result p {
+      margin: 0 0 22px;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: rgba(247, 247, 244, .85);
+    }
+
+    .result .pill {
+      background: var(--bg);
+      color: var(--ink);
+      border-color: var(--bg);
+    }
+
+    .profile-meta {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(247, 247, 244, .22);
+      display: grid;
+      gap: 5px;
+      font-size: 12.5px;
+      color: rgba(247, 247, 244, .7);
+    }
+
+    @media (max-width: 480px) {
+      .taste-page h1 {
+        font-size: 16vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="wordmark" href="index.html" aria-label="小白学菜 首页">
+        <span class="wordmark-dot" aria-hidden="true"></span>小白学菜
+      </a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-haspopup="true">
+          板块
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
+          <a class="nav-link" href="courses.html"><span>闯关计划</span><small>去闯关</small></a>
+          <a class="nav-link" href="index.html#feed"><span>菜谱库</span></a>
+          <a class="nav-link current" href="taste.html"><span>我的口味</span><small>当前</small></a>
+          <a class="nav-link" href="kitchen.html"><span>我的厨房</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <p class="topbar-center">从零开始，学会做菜</p>
+
+    <div class="topbar-right">
+      <a class="text-link" href="index.html">登录</a>
+      <a class="pill" href="#tasteForm">填写档案</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="taste-page">
+      <h1>我的口味</h1>
+      <p class="taste-sub">先让菜谱认识你：有什么不吃、家里有什么锅、每天愿意花多久。填完我们会记住，以后推荐都从你的情况出发。</p>
+
+      <div class="saved-banner hidden" id="savedBanner">
+        <span>口味档案已保存，下次打开会自动记住。</span>
+        <a href="#result">查看推荐 →</a>
+      </div>
+
+      <form id="tasteForm" onsubmit="return false;">
+        <section class="field">
+          <div class="field-head">
+            <span class="field-no">01</span>
+            <div>
+              <h2>有什么不吃、过敏、忌口？</h2>
+              <p>写得越具体越好，比如“不吃香菜”“海鲜过敏”“怕辣”。</p>
+            </div>
+          </div>
+          <textarea id="tasteText" aria-label="忌口与过敏描述" placeholder="例如：不吃香菜，海鲜过敏，不太能吃辣"></textarea>
+          <div class="chip-row" id="tasteQuickChips">
+            <button type="button" class="chip" data-text="不吃香菜">不吃香菜</button>
+            <button type="button" class="chip" data-text="不太能吃辣">不太能吃辣</button>
+            <button type="button" class="chip" data-text="不吃猪肉">不吃猪肉</button>
+            <button type="button" class="chip" data-text="海鲜过敏">海鲜过敏</button>
+            <button type="button" class="chip" data-text="乳糖不耐">乳糖不耐</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <div class="field-head">
+            <span class="field-no">02</span>
+            <div>
+              <h2>你厨房里有什么？</h2>
+              <p>勾选实际在用的工具，我们会避开那些“你没有条件做”的菜。</p>
+            </div>
+          </div>
+          <div class="chip-row" id="toolRow">
+            <button type="button" class="chip" data-tool="炒锅">炒锅</button>
+            <button type="button" class="chip" data-tool="电饭煲">电饭煲</button>
+            <button type="button" class="chip" data-tool="烤箱">烤箱</button>
+            <button type="button" class="chip" data-tool="微波炉">微波炉</button>
+            <button type="button" class="chip" data-tool="空气炸锅">空气炸锅</button>
+            <button type="button" class="chip" data-tool="只有电煮锅">只有电煮锅</button>
+          </div>
+          <p class="chip-hint">没选也没关系，默认按“一口炒锅 + 电饭煲”来推荐。</p>
+        </section>
+
+        <section class="field">
+          <div class="field-head">
+            <span class="field-no">03</span>
+            <div>
+              <h2>你愿意为做饭花多久？</h2>
+              <p>按最真实的日常来选，不用逞强。</p>
+            </div>
+          </div>
+          <div class="chip-row" id="timeRow">
+            <button type="button" class="chip" data-time="fast">15 分钟以内</button>
+            <button type="button" class="chip" data-time="half">约 30 分钟</button>
+            <button type="button" class="chip" data-time="weekend">周末集中练</button>
+            <button type="button" class="chip" data-time="whatever">为了好吃不在乎时间</button>
+          </div>
+        </section>
+
+        <section class="field">
+          <div class="field-head">
+            <span class="field-no">04</span>
+            <div>
+              <h2>你现在最想解决什么？</h2>
+              <p>这一步决定先推荐哪道菜。</p>
+            </div>
+          </div>
+          <div class="chip-row" id="goalRow">
+            <button type="button" class="chip" data-goal="daily">每天吃上家常菜</button>
+            <button type="button" class="chip" data-goal="jibei">做减脂便当</button>
+            <button type="button" class="chip" data-goal="guest">周末请客露一手</button>
+            <button type="button" class="chip" data-goal="family">给家人做一餐饭</button>
+          </div>
+        </section>
+
+        <div class="taste-actions">
+          <button type="submit" class="pill" id="saveBtn">保存口味档案</button>
+          <button type="button" class="ghost-btn" id="resetBtn">清空重填</button>
+        </div>
+      </form>
+
+      <section class="result hidden" id="result" aria-live="polite">
+        <p class="result-kicker">已为你记住</p>
+        <h2 id="resultTitle"></h2>
+        <p id="resultDesc"></p>
+        <a class="pill" href="" id="resultLink">去练这道菜</a>
+        <div class="profile-meta" id="profileMeta"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>小白学菜 · 我的口味</p>
+    <p><a class="text-link" href="index.html">回到首页</a></p>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const STORAGE_KEY = "xiaobai-taste-v1";
+    const menuBtn = document.getElementById("menuBtn");
+    const menuPop = document.getElementById("menuPop");
+    const toast = document.getElementById("toast");
+    const tasteText = document.getElementById("tasteText");
+    const savedBanner = document.getElementById("savedBanner");
+    const resultBox = document.getElementById("result");
+
+    const GOAL_DISH = {
+      daily: {
+        name: "番茄炒蛋",
+        url: "recipes/fanqie-chao-dan.html",
+        why: "你想先把每天的饭解决掉，那就从最不容易翻车、十五分钟能上桌的番茄炒蛋开始。"
+      },
+      jibei: {
+        name: "香煎鸡胸肉",
+        url: "recipes/xiangjian-jixiong.html",
+        why: "减脂便当的关键是“肉嫩不柴”，先练会鸡胸，便当就有了主心骨。"
+      },
+      guest: {
+        name: "可乐鸡翅",
+        url: "recipes/kele-jichi.html",
+        why: "想请客露一手，先练一道卖相好、容错高的硬菜：可乐鸡翅。"
+      },
+      family: {
+        name: "冬瓜丸子汤",
+        url: "recipes/donggua-wanzi-tang.html",
+        why: "给家人做饭，先学会一锅温柔清淡的汤，大家都吃得惯。"
+      }
+    };
+
+    function getState() {
+      const state = {
+        text: tasteText.value.trim(),
+        tools: [...document.querySelectorAll("#toolRow .chip.selected")].map(el => el.dataset.tool),
+        time: document.querySelector("#timeRow .chip.selected")?.dataset.time || "",
+        goal: document.querySelector("#goalRow .chip.selected")?.dataset.goal || ""
+      };
+      return state;
+    }
+
+    function saveState(state) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        /* 无存储时仅在本次打开有效 */
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function applyState(state) {
+      if (!state) return;
+      tasteText.value = state.text || "";
+      document.querySelectorAll("#toolRow .chip").forEach(chip => {
+        chip.classList.toggle("selected", state.tools.includes(chip.dataset.tool));
+      });
+      document.querySelectorAll("#timeRow .chip").forEach(chip => {
+        chip.classList.toggle("selected", state.time === chip.dataset.time);
+      });
+      document.querySelectorAll("#goalRow .chip").forEach(chip => {
+        chip.classList.toggle("selected", state.goal === chip.dataset.goal);
+      });
+    }
+
+    function bindChips() {
+      document.querySelectorAll(".chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          if (chip.hasAttribute("data-text")) {
+            const piece = chip.dataset.text;
+            const current = tasteText.value;
+            if (!current.includes(piece)) {
+              tasteText.value = current ? current + "，" + piece : piece;
+            }
+            tasteText.focus();
+            return;
+          }
+          const sameGroup = chip.parentElement;
+          const single = chip.hasAttribute("data-time") || chip.hasAttribute("data-goal");
+          if (single) {
+            sameGroup.querySelectorAll(".chip.selected").forEach(c => c.classList.remove("selected"));
+          }
+          chip.classList.toggle("selected");
+        });
+      });
+    }
+
+    function renderResult(state) {
+      const rec = GOAL_DISH[state.goal] || GOAL_DISH.daily;
+      resultBox.classList.remove("hidden");
+      document.getElementById("resultTitle").textContent = `先练：${rec.name}`;
+      document.getElementById("resultDesc").textContent = rec.why;
+      document.getElementById("resultLink").href = rec.url;
+      const meta = [
+        state.text ? `忌口备注：${state.text}` : "忌口备注：暂无特别说明",
+        state.tools.length ? `厨房工具：${state.tools.join("、")}` : "厨房工具：按一口炒锅 + 电饭煲推荐",
+        state.time ? `做饭时间：${document.querySelector("#timeRow .chip.selected").textContent}` : "做饭时间：未选择",
+        state.goal ? `本周目标：${document.querySelector("#goalRow .chip.selected").textContent}` : "本周目标：日常家常菜"
+      ];
+      document.getElementById("profileMeta").innerHTML = meta.map(m => `<span>${m}</span>`).join("");
+      savedBanner.classList.remove("hidden");
+      resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const state = getState();
+      saveState(state);
+      renderResult(state);
+      showToast("口味档案已保存");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      tasteText.value = "";
+      document.querySelectorAll(".chip.selected").forEach(c => c.classList.remove("selected"));
+      resultBox.classList.add("hidden");
+      savedBanner.classList.add("hidden");
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch (e) { /* ignore */ }
+      showToast("档案已清空");
+    });
+
+    menuBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = menuPop.classList.toggle("hidden") === false;
+      menuBtn.setAttribute("aria-expanded", String(open));
+    });
+
+    document.addEventListener("click", (event) => {
+      const wrap = document.querySelector(".menu-wrap");
+      if (!menuPop.classList.contains("hidden") && wrap && !wrap.contains(event.target)) {
+        menuPop.classList.add("hidden");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    bindChips();
+    const saved = loadState();
+    applyState(saved);
+    if (saved) {
+      savedBanner.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
