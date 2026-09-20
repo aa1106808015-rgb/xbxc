@@ -261,8 +261,8 @@
           </svg>
         </button>
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
-          <a class="nav-link" href="courses.html"><span>闯关计划</span><small>去闯关</small></a>
-          <a class="nav-link" href="index.html#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="courses.html"><span>课程列表</span><small>按课学习</small></a>
+          <a class="nav-link" href="library.html"><span>菜谱库</span><small>可搜索</small></a>
           <a class="nav-link" href="taste.html"><span>我的口味</span></a>
           <a class="nav-link current" href="kitchen.html"><span>我的厨房</span><small>当前</small></a>
         </nav>
@@ -272,6 +272,7 @@
     <p class="topbar-center">从零开始，学会做菜</p>
 
     <div class="topbar-right">
+      <a class="text-link" href="library.html">搜索</a>
       <a class="text-link" href="index.html">登录</a>
       <a class="pill" href="#today">今日练习</a>
     </div>
@@ -280,7 +281,7 @@
   <main id="main">
     <section class="kitchen-page">
       <h1>我的厨房</h1>
-      <p class="kitchen-sub">你的练习台：打开就知道今天该练哪道、还差几道通关、出门该买什么。</p>
+      <p class="kitchen-sub">你的练习台：打开就知道今天该练哪道、还差几道学完、出门该买什么。</p>
 
       <div class="dash-grid">
         <div>
@@ -304,7 +305,8 @@
               <span>九道练习菜已点亮</span>
             </div>
             <div id="levelRows"></div>
-            <a class="text-link" href="courses.html" style="display:inline-block;margin-top:18px;">查看完整闯关路线 →</a>
+            <a class="text-link" href="courses.html" style="display:inline-block;margin-top:18px;">查看完整课程列表 →</a>
+            <a class="text-link" href="library.html" style="display:inline-block;margin-top:18px;margin-left:18px;">去菜谱库搜索 →</a>
           </section>
         </div>
 
@@ -346,14 +348,14 @@
       },
       qingcai: {
         name: "蒜蓉炒青菜",
-        lesson: "第 3 课 · 火候",
+        lesson: "第 2 课 · 火候",
         url: "recipes/suancheng-chao-qingcai.html",
         why: "青菜还没点亮：学会大火快炒，每顿饭都会需要它。",
         ingredients: ["上海青/小油菜 400 克", "大蒜 4 瓣", "盐", "食用油"]
       },
       tang: {
         name: "冬瓜丸子汤",
-        lesson: "第 5 课 · 汤",
+        lesson: "第 3 课 · 汤",
         url: "recipes/donggua-wanzi-tang.html",
         why: "汤品还没点亮：学会汆丸子，就能凑齐两菜一汤。",
         ingredients: ["冬瓜 400 克", "猪肉末 200 克", "姜 1 小块", "小葱 2 根", "淀粉", "盐", "白胡椒粉"]
@@ -367,35 +369,35 @@
       },
       jixiong: {
         name: "香煎鸡胸肉",
-        lesson: "第 6 课 · 控火",
+        lesson: "第 5 课 · 控火",
         url: "recipes/xiangjian-jixiong.html",
         why: "高蛋白那一格还没点亮：学会中火慢煎，鸡胸不柴。",
         ingredients: ["鸡胸肉 1 块", "盐", "黑胡椒", "生抽（可选）", "食用油"]
       },
       liangban: {
         name: "黄瓜拌木耳",
-        lesson: "第 8 课 · 凉拌",
+        lesson: "第 6 课 · 凉拌",
         url: "recipes/huanggua-ban-muer.html",
         why: "万能凉拌汁还没练：十分钟凑出一道清爽小菜。",
         ingredients: ["干木耳 10 克", "黄瓜 1 根", "大蒜 2 瓣", "生抽", "香醋", "白糖", "香油"]
       },
       jichi: {
         name: "可乐鸡翅",
-        lesson: "硬菜入门",
+        lesson: "第 7 课 · 调味",
         url: "recipes/kele-jichi.html",
         why: "请客硬菜还没点亮：练好收汁，这道菜就稳了。",
         ingredients: ["鸡翅中 8 个", "可乐 1 罐", "姜 3–4 片", "料酒", "生抽", "白芝麻（可选）"]
       },
       mapo: {
         name: "麻婆豆腐",
-        lesson: "酱汁与勾芡",
+        lesson: "第 8 课 · 酱汁",
         url: "recipes/mapo-doufu.html",
         why: "下饭豆腐还没点亮：学会炒豆瓣酱和勾芡，很多菜都能通。",
         ingredients: ["嫩豆腐 1 盒", "猪肉末 80 克", "郫县豆瓣酱", "蒜 2 瓣", "姜 1 小块", "淀粉", "花椒粉", "小葱"]
       },
       huanggua: {
         name: "凉拌黄瓜",
-        lesson: "解腻凉菜",
+        lesson: "第 9 课 · 拍黄瓜",
         url: "recipes/liangban-huanggua.html",
         why: "请客的凉菜还没点亮：先拍后腌，整顿饭就平衡了。",
         ingredients: ["黄瓜 2 根", "大蒜 3 瓣", "盐", "生抽", "香醋", "白糖", "香油"]
@@ -403,9 +405,9 @@
     };
 
     const LEVELS = [
-      { name: "第一关 · 两菜一汤", key: "xiaobai-level1-done-v1", ids: ["fanqie", "qingcai", "tang"] },
-      { name: "第二关 · 一人食", key: "xiaobai-level2-done-v1", ids: ["menfan", "jixiong", "liangban"] },
-      { name: "第三关 · 周末请客", key: "xiaobai-level3-done-v1", ids: ["jichi", "mapo", "huanggua"] }
+      { name: "阶段一 · 两菜一汤", key: "xiaobai-level1-done-v1", ids: ["fanqie", "qingcai", "tang"] },
+      { name: "阶段二 · 一人食", key: "xiaobai-level2-done-v1", ids: ["menfan", "jixiong", "liangban"] },
+      { name: "阶段三 · 周末请客", key: "xiaobai-level3-done-v1", ids: ["jichi", "mapo", "huanggua"] }
     ];
 
     const GOAL_FALLBACK = {
@@ -482,7 +484,7 @@
       document.getElementById("todayName").textContent = rec.name;
       document.getElementById("todayLesson").textContent = rec.lesson;
       document.getElementById("todayReason").textContent = allDone.size === 9
-        ? "三关全部点亮了！这道是你的目标菜，用来复习或招待朋友都很合适。"
+        ? "九课全部学完了！这道是你的目标菜，用来复习或招待朋友都很合适。"
         : rec.why;
       document.getElementById("todayLink").href = rec.url;
 

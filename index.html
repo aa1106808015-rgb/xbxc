@@ -414,6 +414,12 @@
       line-height: 1.8;
     }
 
+    .feed-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 26px;
+    }
+
     .cards {
       margin-top: 58px;
       display: grid;
@@ -742,8 +748,8 @@
           </svg>
         </button>
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
-          <a class="nav-link" href="courses.html"><span>闯关计划</span><small>去闯关</small></a>
-          <a class="nav-link" href="#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="courses.html"><span>课程列表</span><small>按课学习</small></a>
+          <a class="nav-link" href="library.html"><span>菜谱库</span><small>可搜索</small></a>
           <a class="nav-link" href="taste.html"><span>我的口味</span></a>
           <a class="nav-link" href="kitchen.html"><span>我的厨房</span></a>
         </nav>
@@ -756,6 +762,7 @@
     </p>
 
     <div class="topbar-right">
+      <a class="text-link" href="library.html">搜索</a>
       <a class="text-link" href="#">登录</a>
       <a class="pill" href="#prompt">开始第一课</a>
     </div>
@@ -791,7 +798,7 @@
     <section class="plan-panel hidden" id="planPanel" aria-live="polite">
       <p class="plan-kicker">给你的第一周练习计划</p>
       <div class="plan-card">
-        <span class="plan-badge" id="planBadge">第 1 关 · 基础</span>
+        <span class="plan-badge" id="planBadge">第 1 课 · 基础</span>
         <h2 id="planTitle">先从一顿饭练起</h2>
         <p class="plan-desc" id="planDesc">三道菜递进练习，每道只解决一个新问题。</p>
         <ol class="steps" id="planSteps"></ol>
@@ -803,6 +810,9 @@
         <p class="eyebrow">练习菜预览</p>
         <h2>先认识几道不翻车的菜</h2>
         <p>每道菜都配了来自下厨房的成品实拍图；卡片上标的是它教你的本领和所需时间。</p>
+      </div>
+      <div class="feed-actions">
+        <a class="pill" href="library.html">进入菜谱库搜索</a>
       </div>
       <div class="cards" id="cardGrid"></div>
     </section>
@@ -832,27 +842,27 @@
       },
       {
         no: "02",
-        name: "可乐鸡翅",
-        href: "recipes/kele-jichi.html",
-        img: "assets/dishes/kele-jichi.jpg",
-        colorA: "#ecd5cb",
-        colorB: "#d4a28c",
-        lesson: "第 2 课 · 调味",
-        time: "35 分钟",
-        cost: "约 ¥18",
-        learn: "学焯水、上色和收汁，第一次做“端得上桌”的硬菜。"
-      },
-      {
-        no: "03",
         name: "蒜蓉炒青菜",
         href: "recipes/suancheng-chao-qingcai.html",
         img: "assets/dishes/suancheng-chao-qingcai.jpg",
         colorA: "#dde5d0",
         colorB: "#aec99a",
-        lesson: "第 3 课 · 火候",
+        lesson: "第 2 课 · 火候",
         time: "10 分钟",
         cost: "约 ¥5",
         learn: "学大火快炒，青菜翠绿不出水，一桌饭离不开它。"
+      },
+      {
+        no: "03",
+        name: "冬瓜丸子汤",
+        href: "recipes/donggua-wanzi-tang.html",
+        img: "assets/dishes/donggua-wanzi-tang.jpg",
+        colorA: "#dce9e6",
+        colorB: "#9fc6c3",
+        lesson: "第 3 课 · 汤",
+        time: "25 分钟",
+        cost: "约 ¥12",
+        learn: "学汆丸子不散、汤底不浊，学会后举一反三。"
       },
       {
         no: "04",
@@ -868,51 +878,51 @@
       },
       {
         no: "05",
-        name: "冬瓜丸子汤",
-        href: "recipes/donggua-wanzi-tang.html",
-        img: "assets/dishes/donggua-wanzi-tang.jpg",
-        colorA: "#dce9e6",
-        colorB: "#9fc6c3",
-        lesson: "第 5 课 · 汤",
-        time: "25 分钟",
-        cost: "约 ¥12",
-        learn: "学汆丸子不散、汤底不浊，学会后举一反三。"
-      },
-      {
-        no: "06",
         name: "香煎鸡胸肉",
         href: "recipes/xiangjian-jixiong.html",
         img: "assets/dishes/xiangjian-jixiong.jpg",
         colorA: "#eedcc9",
         colorB: "#cfaa80",
-        lesson: "第 6 课 · 控火",
+        lesson: "第 5 课 · 控火",
         time: "20 分钟",
         cost: "约 ¥8",
         learn: "学中小火慢煎，鸡胸肉也能嫩而不柴。"
       },
       {
-        no: "07",
-        name: "麻婆豆腐",
-        href: "recipes/mapo-doufu.html",
-        img: "assets/dishes/mapo-doufu.jpg",
-        colorA: "#eccfc8",
-        colorB: "#d4927f",
-        lesson: "第 7 课 · 酱汁",
-        time: "25 分钟",
-        cost: "约 ¥10",
-        learn: "学调一个咸麻微辣的酱汁，下饭神器。"
-      },
-      {
-        no: "08",
+        no: "06",
         name: "黄瓜拌木耳",
         href: "recipes/huanggua-ban-muer.html",
         img: "assets/dishes/huanggua-ban-muer.jpg",
         colorA: "#dce5d8",
         colorB: "#a7c8aa",
-        lesson: "第 8 课 · 凉拌",
+        lesson: "第 6 课 · 凉拌",
         time: "10 分钟",
         cost: "约 ¥5",
         learn: "学一套万能凉拌汁，以后拌什么都心里有数。"
+      },
+      {
+        no: "07",
+        name: "可乐鸡翅",
+        href: "recipes/kele-jichi.html",
+        img: "assets/dishes/kele-jichi.jpg",
+        colorA: "#ecd5cb",
+        colorB: "#d4a28c",
+        lesson: "第 7 课 · 调味",
+        time: "35 分钟",
+        cost: "约 ¥18",
+        learn: "学焯水、上色和收汁，第一次做“端得上桌”的硬菜。"
+      },
+      {
+        no: "08",
+        name: "麻婆豆腐",
+        href: "recipes/mapo-doufu.html",
+        img: "assets/dishes/mapo-doufu.jpg",
+        colorA: "#eccfc8",
+        colorB: "#d4927f",
+        lesson: "第 8 课 · 酱汁",
+        time: "25 分钟",
+        cost: "约 ¥10",
+        learn: "学调一个咸麻微辣的酱汁，下饭神器。"
       },
       {
         no: "09",
@@ -937,7 +947,7 @@
     const ROUTES = [
       {
         match: ["家人", "两菜一汤", "周末"],
-        badge: "第 1 关 · 周末家宴",
+        badge: "路线 1 · 周末家宴",
         title: "周末给家人做一顿两菜一汤",
         desc: "不用一次学会很多，三道菜各练一个重点，周末按顺序做熟。",
         steps: [
@@ -948,7 +958,7 @@
       },
       {
         match: ["便当", "减脂", "带饭", "健康"],
-        badge: "第 1 关 · 便当路线",
+        badge: "路线 2 · 便当",
         title: "先凑齐一份不怕放凉的减脂便当",
         desc: "肉类、蔬菜、主食三格分开练，每道都适合提前一晚做好。",
         steps: [
@@ -959,7 +969,7 @@
       },
       {
         match: ["泡面", "没下过厨", "零基础", "不会"],
-        badge: "第 1 关 · 基础",
+        badge: "路线 3 · 基础",
         title: "第一周，只练会三道基本功",
         desc: "从不会到能独立开火，先从最不容易翻车的三道练起。",
         steps: [

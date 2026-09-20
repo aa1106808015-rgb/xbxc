@@ -982,8 +982,8 @@
           </svg>
         </button>
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
-          <a class="nav-link" href="../courses.html"><span>闯关计划</span><small>去闯关</small></a>
-          <a class="nav-link" href="../index.html#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="../courses.html"><span>课程列表</span><small>按课学习</small></a>
+          <a class="nav-link" href="../library.html"><span>菜谱库</span><small>可搜索</small></a>
           <a class="nav-link" href="../taste.html"><span>我的口味</span></a>
           <a class="nav-link" href="../kitchen.html"><span>我的厨房</span></a>
         </nav>
@@ -993,6 +993,7 @@
     <p class="topbar-center">从零开始，学会做菜</p>
 
     <div class="topbar-right">
+      <a class="text-link" href="../library.html">搜索</a>
       <a class="text-link" href="../index.html">登录</a>
       <a class="pill" href="#steps">开始练习</a>
     </div>
@@ -1048,7 +1049,7 @@
           <li><a href="#ingredients">用料</a></li>
           <li><a href="#steps">步骤</a></li>
           <li><a href="#rescue">翻车急救</a></li>
-          <li><a href="#done">通关标准</a></li>
+          <li><a href="#done">学会标准</a></li>
         </ul>
       </div>
     </nav>
@@ -1287,7 +1288,7 @@
 
       <section class="section" id="done">
         <div class="section-head">
-          <p class="kicker">05 · 通关标准</p>
+          <p class="kicker">05 · 学会标准</p>
           <h2>怎么算“学会了”？</h2>
           <p>不用和菜谱一模一样，做到下面四条，这道菜就算练成了。</p>
         </div>
@@ -1324,7 +1325,7 @@
         </ul>
 
         <div class="next-wrap">
-          <p>练熟这一道后，可以进入第 3 课，学另一个基本功：大火快炒。</p>
+          <p>练熟这一道后，可以进入第 2 课，学另一个基本功：大火快炒。</p>
           <a class="next-card" href="suancheng-chao-qingcai.html">
             <span>
               <small>下一课建议</small>
@@ -1383,5 +1384,7 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
     }
   </script>
+  <script src="../data/recipes.js" defer></script>
+  <script src="../assets/learn.js" defer></script>
 </body>
 </html>

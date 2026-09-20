@@ -25,8 +25,8 @@
           </svg>
         </button>
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
-          <a class="nav-link" href="../courses.html"><span>闯关计划</span><small>去闯关</small></a>
-          <a class="nav-link" href="../index.html#feed"><span>菜谱库</span></a>
+          <a class="nav-link" href="../courses.html"><span>课程列表</span><small>按课学习</small></a>
+          <a class="nav-link" href="../library.html"><span>菜谱库</span><small>可搜索</small></a>
           <a class="nav-link" href="../taste.html"><span>我的口味</span></a>
           <a class="nav-link" href="../kitchen.html"><span>我的厨房</span></a>
         </nav>
@@ -36,6 +36,7 @@
     <p class="topbar-center">从零开始，学会做菜</p>
 
     <div class="topbar-right">
+      <a class="text-link" href="../library.html">搜索</a>
       <a class="text-link" href="../index.html">登录</a>
       <a class="pill" href="#steps">开始练习</a>
     </div>
@@ -47,13 +48,13 @@
         <div class="hero-grid">
           <div>
             <nav class="crumb" aria-label="面包屑">
-              <a href="../courses.html">闯关计划</a>
+              <a href="../courses.html">课程列表</a>
               <span>/</span>
               <span>凉拌黄瓜</span>
             </nav>
 
             <div class="badge-row">
-              <span class="badge badge-dark">解腻神器</span>
+              <span class="badge badge-dark">第 9 课 · 拍黄瓜</span>
               <span class="badge">三分钟上桌</span>
               <span class="badge">请客凉菜</span>
             </div>
@@ -71,7 +72,7 @@
 
             <div class="hero-actions">
               <a class="pill" href="#ingredients">开始练习</a>
-              <a class="text-link" href="../courses.html">← 回闯关计划</a>
+              <a class="text-link" href="../courses.html">← 回课程列表</a>
             </div>
           </div>
 
@@ -91,7 +92,7 @@
           <li><a href="#ingredients">用料</a></li>
           <li><a href="#steps">步骤</a></li>
           <li><a href="#rescue">翻车急救</a></li>
-          <li><a href="#done">通关标准</a></li>
+          <li><a href="#done">学会标准</a></li>
         </ul>
       </div>
     </nav>
@@ -100,13 +101,13 @@
       <section class="section" id="goal">
         <div class="section-head">
           <p class="kicker">01 · 本课目标</p>
-          <h2>为什么第三关用它收尾？</h2>
+          <h2>为什么用它收尾？</h2>
           <p>可乐鸡翅甜、麻婆豆腐咸辣，这时候来一盘脆生生的黄瓜，整顿饭才平衡。</p>
         </div>
         <div class="goal-grid">
           <div class="goal">
             <strong>复习凉拌汁</strong>
-            <span>第二关学的万能汁，这一关只加了“盐腌”一步。</span>
+            <span>第 6 课学的万能汁，这一课只加了“盐腌”一步。</span>
           </div>
           <div class="goal">
             <strong>学会腌水</strong>
@@ -278,7 +279,7 @@
 
       <section class="section" id="done">
         <div class="section-head">
-          <p class="kicker">05 · 通关标准</p>
+          <p class="kicker">05 · 学会标准</p>
           <h2>怎么算“学会了”？</h2>
           <p>这道菜通过，你的“请客餐桌”就真的配齐了。</p>
         </div>
@@ -315,11 +316,11 @@
         </ul>
 
         <div class="next-wrap">
-          <p>三道都练会，第三关「周末小请客」通关。回闯关页点亮进度吧。</p>
+          <p>三道都练会，这一阶段“周末小请客”就学完了。回课程列表看看进度吧。</p>
           <a class="next-card" href="../courses.html">
             <span>
-              <small>第三关收尾</small>
-              <strong>回闯关计划</strong>
+              <small>这一阶段收尾</small>
+              <strong>回课程列表</strong>
             </span>
             <span class="arrow">→</span>
           </a>
@@ -330,7 +331,7 @@
 
   <footer>
     <p>小白学菜 · 凉拌黄瓜</p>
-    <p><a class="text-link" href="../courses.html">回到闯关计划</a></p>
+    <p><a class="text-link" href="../courses.html">回到课程列表</a></p>
   </footer>
 
   <div class="toast" id="toast" role="status"></div>
@@ -374,5 +375,7 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
     }
   </script>
+  <script src="../data/recipes.js" defer></script>
+  <script src="../assets/learn.js" defer></script>
 </body>
 </html>

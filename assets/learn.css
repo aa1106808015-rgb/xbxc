@@ -1,0 +1,147 @@
+.learn-panel {
+  margin-top: 30px;
+  padding: clamp(22px, 3.4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--paper);
+}
+
+.learn-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.learn-kicker {
+  margin: 0 0 10px;
+  color: var(--faint);
+  font-size: 12px;
+  letter-spacing: .26em;
+}
+
+.learn-head h2 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 550;
+  letter-spacing: .02em;
+}
+
+.learn-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
+.learn-status {
+  flex: none;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.learn-status.done {
+  border-color: rgba(63, 90, 58, .3);
+  background: #eef0e7;
+  color: #3f5a3a;
+}
+
+.learn-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.learn-done-btn {
+  padding: 11px 20px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+}
+
+.learn-done-btn.done {
+  border-color: #3f5a3a;
+  background: #3f5a3a;
+}
+
+.learn-done-btn:hover {
+  opacity: .9;
+}
+
+.learn-rating {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.learn-star {
+  padding: 0;
+  color: var(--line);
+  font-size: 23px;
+  line-height: 1;
+}
+
+.learn-star.on {
+  color: #d99a2b;
+}
+
+.learn-notes {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+}
+
+.learn-notes:focus {
+  outline: 2px solid rgba(25, 25, 20, .16);
+  outline-offset: 1px;
+}
+
+.learn-meta {
+  margin: 12px 0 0;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
+.learn-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13.5px;
+  text-underline-offset: 3px;
+}
+
+.learn-link:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .learn-head {
+    display: block;
+  }
+
+  .learn-status {
+    display: inline-block;
+    margin-top: 12px;
+  }
+}
