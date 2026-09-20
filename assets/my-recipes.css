@@ -159,6 +159,12 @@ button { background: none; border: 0; cursor: pointer; }
 
 .ghost-btn:hover { border-color: var(--ink); color: var(--ink); }
 
+.ghost-btn.active {
+  border-color: #3f5a3a;
+  background: #eef0e7;
+  color: #3f5a3a;
+}
+
 .hero {
   padding: clamp(58px, 9vw, 94px) 0 42px;
 }
@@ -546,6 +552,52 @@ h1 {
   line-height: 1.9;
 }
 
+.practice-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.practice-photo {
+  width: 140px;
+  height: 104px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  object-fit: cover;
+  background: var(--bg);
+}
+
+.practice-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+
+.detail-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  outline: none;
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+}
+
+.detail-textarea:focus {
+  border-color: var(--ink);
+}
+
+.detail-status {
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
 footer {
   padding: 34px 20px 44px;
   border-top: 1px solid var(--line);
@@ -573,4 +625,5 @@ footer a { color: var(--muted); }
   .field-row { grid-template-columns: 1fr; }
   .cover-row { grid-template-columns: 1fr; }
   .ingredient { grid-template-columns: 1fr; gap: 3px; }
+  .practice-row { grid-template-columns: 1fr; }
 }

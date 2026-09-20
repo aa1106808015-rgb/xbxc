@@ -3,6 +3,8 @@
 
   const RECIPES = Array.isArray(window.XIAOBAI_RECIPES) ? window.XIAOBAI_RECIPES : [];
   if (!RECIPES.length) return;
+  const WISHLIST = window.XiaoBaiWishlist || null;
+  const PRACTICE_LOG = window.XiaoBaiPracticeLog || null;
 
   const slug = (location.pathname.split("/").pop() || "").replace(/\.html$/, "");
   const recipe = RECIPES.find((item) => item.slug === slug || item.url.endsWith(`${slug}.html`));
@@ -60,6 +62,7 @@
     notes: typeof existing.notes === "string" ? existing.notes : "",
     times: Number(existing.times) || 0,
     lastDone: existing.lastDone || "",
+    photo: typeof existing.photo === "string" ? existing.photo : "",
   };
 
   records[recipe.id] = record;
@@ -78,6 +81,25 @@
   function save() {
     records[recipe.id] = record;
     storageSet(RECORD_KEY, JSON.stringify(records));
+  }
+
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function syncPracticeLog() {
+    if (!PRACTICE_LOG) return;
+    if (!record.done && !record.photo && !record.rating && !record.notes) return;
+    PRACTICE_LOG.upsert({
+      recipeId: recipe.id,
+      name: recipe.name,
+      url: recipe.url,
+      date: today(),
+      rating: record.rating,
+      notes: record.notes,
+      photo: record.photo,
+      cover: recipe.cover,
+    });
   }
 
   function ensureStyles() {
@@ -124,9 +146,19 @@
       </div>
       <div class="learn-actions">
         <button class="learn-done-btn" id="learnDoneBtn" type="button">标记已练会</button>
+        <button class="learn-wish-btn" id="learnWishBtn" type="button">加入想学</button>
         <div class="learn-rating" role="group" aria-label="给这道菜打分">
           <span>我的评分</span>
           ${[1, 2, 3, 4, 5].map((n) => `<button class="learn-star" type="button" data-rating="${n}" aria-label="${n} 星">★</button>`).join("")}
+        </div>
+      </div>
+      <div class="learn-photo-row">
+        <img class="learn-photo" id="learnPhotoPreview" alt="${recipe.name}的成品图">
+        <div>
+          <label class="learn-photo-btn" for="learnPhotoInput">上传我的成品图</label>
+          <input class="hidden" id="learnPhotoInput" type="file" accept="image/*">
+          <button class="learn-photo-clear" id="learnPhotoClear" type="button">清除图片</button>
+          <p class="learn-photo-note">图片会压缩后保存在本机浏览器，显示在“我的厨房 · 最近练习”里。</p>
         </div>
       </div>
       <textarea class="learn-notes" id="learnNotes" placeholder="写点自己的笔记：哪里翻车了、下次怎么改、家人觉得怎么样……"></textarea>
@@ -146,9 +178,13 @@
   }
 
   const doneBtn = section.querySelector("#learnDoneBtn");
+  const wishBtn = section.querySelector("#learnWishBtn");
   const status = section.querySelector("#learnStatus");
   const notes = section.querySelector("#learnNotes");
   const meta = section.querySelector("#learnMeta");
+  const photoPreview = section.querySelector("#learnPhotoPreview");
+  const photoInput = section.querySelector("#learnPhotoInput");
+  const photoClear = section.querySelector("#learnPhotoClear");
   const stars = [...section.querySelectorAll(".learn-star")];
 
   let notesTimer = 0;
@@ -161,6 +197,10 @@
     status.classList.toggle("done", record.done);
     status.textContent = record.done ? "已点亮" : "还没标记";
 
+    const wished = WISHLIST ? WISHLIST.has(recipe.id) : false;
+    wishBtn.classList.toggle("active", wished);
+    wishBtn.textContent = wished ? "已在想学清单 ✓" : "加入想学";
+
     stars.forEach((star) => {
       const value = Number(star.dataset.rating);
       star.classList.toggle("on", value <= record.rating);
@@ -172,6 +212,16 @@
     if (record.lastDone) bits.push(`最近一次：${record.lastDone}`);
     if (record.rating) bits.push(`评分：${record.rating}/5`);
     meta.textContent = bits.join(" · ") || "还没有记录，完成第一次练习后标记一下。";
+
+    if (record.photo) {
+      photoPreview.src = record.photo;
+      photoPreview.classList.remove("hidden");
+      photoClear.classList.remove("hidden");
+    } else {
+      photoPreview.removeAttribute("src");
+      photoPreview.classList.add("hidden");
+      photoClear.classList.add("hidden");
+    }
   }
 
   doneBtn.addEventListener("click", () => {
@@ -186,7 +236,21 @@
     }
     save();
     syncLevel();
+    syncPracticeLog();
     render();
+  });
+
+  wishBtn.addEventListener("click", () => {
+    if (!WISHLIST) return;
+    const added = WISHLIST.toggle({
+      id: recipe.id,
+      name: recipe.name,
+      url: recipe.url,
+      cover: recipe.cover,
+      lesson: recipe.lesson,
+    });
+    render();
+    notify(added ? "已加入想学清单，可以去我的厨房看看" : "已从想学清单移除");
   });
 
   stars.forEach((star) => {
@@ -194,6 +258,7 @@
       const value = Number(star.dataset.rating);
       record.rating = record.rating === value ? 0 : value;
       save();
+      syncPracticeLog();
       render();
     });
   });
@@ -203,12 +268,46 @@
     notesTimer = setTimeout(() => {
       record.notes = notes.value;
       save();
+      syncPracticeLog();
     }, 220);
   });
 
   notes.addEventListener("blur", () => {
     record.notes = notes.value;
     save();
+    syncPracticeLog();
+  });
+
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files && photoInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const image = new Image();
+      image.addEventListener("load", () => {
+        const max = 1000;
+        const scale = Math.min(1, max / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+        record.photo = canvas.toDataURL("image/jpeg", 0.75);
+        save();
+        syncPracticeLog();
+        render();
+        notify("成品图已保存在本机");
+      });
+      image.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  });
+
+  photoClear.addEventListener("click", () => {
+    record.photo = "";
+    save();
+    syncPracticeLog();
+    render();
+    notify("已清除成品图");
   });
 
   notes.value = record.notes;

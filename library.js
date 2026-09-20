@@ -3,6 +3,7 @@
 
   const RECIPES = Array.isArray(window.XIAOBAI_RECIPES) ? window.XIAOBAI_RECIPES : [];
   const CUSTOM_STORE = window.XiaoBaiMyRecipes || null;
+  const WISHLIST = window.XiaoBaiWishlist || null;
   const LEVEL_KEYS = [
     "xiaobai-level1-done-v1",
     "xiaobai-level2-done-v1",
@@ -196,25 +197,31 @@
     const tags = (recipe.tags || []).slice(0, 4);
     const lessonText = (recipe.lesson || "").split("·")[0].trim() || "基础课";
     const sourceTag = recipe.source === "custom" ? `<span class="source-tag">我的菜谱</span>` : "";
+    const wished = WISHLIST ? WISHLIST.has(recipe.id) : false;
 
     return `
-      <a class="card" href="${escapeHtml(recipe.url)}">
-        <div class="cover">
-          <img src="${escapeHtml(recipe.cover)}" alt="${escapeHtml(recipe.name)}成品实拍图" loading="lazy">
-          <span class="level">${escapeHtml(lessonText)} · ${escapeHtml(recipe.difficulty)}</span>
-        </div>
-        <div class="card-body">
-          <div class="card-meta">
-            <span>${escapeHtml(recipe.lesson)}</span>
-            <span>${escapeHtml(recipe.time)}</span>
-            <span>${escapeHtml(recipe.cost)}</span>
+      <article class="card" data-recipe-id="${escapeHtml(recipe.id)}">
+        <a class="card-link" href="${escapeHtml(recipe.url)}">
+          <div class="cover">
+            <img src="${escapeHtml(recipe.cover)}" alt="${escapeHtml(recipe.name)}成品实拍图" loading="lazy">
+            <span class="level">${escapeHtml(lessonText)} · ${escapeHtml(recipe.difficulty)}</span>
           </div>
-          <h3>${highlight(recipe.name, tokens)}</h3>
-          <p>${escapeHtml(recipe.lead)}</p>
-          <div class="card-tags">${sourceTag}${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
-          ${snippet ? `<p class="match"><b>匹配：</b>${escapeHtml(snippet)}</p>` : ""}
+          <div class="card-body">
+            <div class="card-meta">
+              <span>${escapeHtml(recipe.lesson)}</span>
+              <span>${escapeHtml(recipe.time)}</span>
+              <span>${escapeHtml(recipe.cost)}</span>
+            </div>
+            <h3>${highlight(recipe.name, tokens)}</h3>
+            <p>${escapeHtml(recipe.lead)}</p>
+            <div class="card-tags">${sourceTag}${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
+            ${snippet ? `<p class="match"><b>匹配：</b>${escapeHtml(snippet)}</p>` : ""}
+          </div>
+        </a>
+        <div class="card-foot">
+          <button class="wish-btn${wished ? " active" : ""}" type="button" data-wish="${escapeHtml(recipe.id)}">${wished ? "已在想学清单 ✓" : "加入想学"}</button>
         </div>
-      </a>`;
+      </article>`;
   }
 
   function render() {
@@ -406,6 +413,23 @@
     state.q = searchInput.value;
     render();
     syncUrl();
+  });
+
+  results.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-wish]");
+    if (!button || !WISHLIST) return;
+    event.preventDefault();
+    const recipe = allRecipes().find((item) => item.id === button.dataset.wish);
+    if (!recipe) return;
+    const added = WISHLIST.toggle({
+      id: recipe.id,
+      name: recipe.name,
+      url: recipe.url,
+      cover: recipe.cover,
+      lesson: recipe.lesson,
+    });
+    button.classList.toggle("active", added);
+    button.textContent = added ? "已在想学清单 ✓" : "加入想学";
   });
 
   const menuBtn = document.getElementById("menuBtn");

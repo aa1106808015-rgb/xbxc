@@ -346,8 +346,13 @@
       border: 1px solid var(--line);
       border-radius: 20px;
       background: var(--paper);
-      text-decoration: none;
       transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .card-link {
+      display: block;
+      color: inherit;
+      text-decoration: none;
     }
 
     .card:hover {
@@ -420,6 +425,30 @@
     .card-tags .source-tag {
       background: var(--ink);
       color: var(--bg);
+    }
+
+    .card-foot {
+      padding: 0 18px 16px;
+    }
+
+    .wish-btn {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .wish-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .wish-btn.active {
+      border-color: #3f5a3a;
+      background: #eef0e7;
+      color: #3f5a3a;
     }
 
     .match {
@@ -584,6 +613,7 @@
 
   <script src="data/recipes.js"></script>
   <script src="assets/my-recipes-store.js"></script>
+  <script src="assets/wishlist-store.js"></script>
   <script src="library.js"></script>
 </body>
 </html>

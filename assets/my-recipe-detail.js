@@ -82,6 +82,7 @@
         ${meta.length ? `<p class="meta">${meta.map(escapeHtml).join("<span>·</span>")}</p>` : ""}
         <div class="hero-actions">
           <a class="pill" href="my-recipes.html?edit=${encodeURIComponent(recipe.id)}">编辑这道菜</a>
+          <button class="ghost-btn" id="detailWishBtn" type="button">加入想学</button>
           <a class="ghost-btn" href="library.html">去菜谱库搜索</a>
           ${recipe.sourceUrl ? `<a class="ghost-btn" href="${escapeHtml(recipe.sourceUrl)}" target="_blank" rel="noopener">打开来源链接</a>` : ""}
         </div>
@@ -102,9 +103,113 @@
     <section class="detail-section">
       <h2>我的笔记</h2>
       <div class="notes-box">${escapeHtml(recipe.notes || "还没有写笔记。练习后可以回来补充翻车点和下次要改的地方。")}</div>
+    </section>
+
+    <section class="detail-section" id="practice">
+      <h2>记录这次练习</h2>
+      <div class="practice-row">
+        <img class="practice-photo" id="practicePhotoPreview" alt="${escapeHtml(recipe.name)}成品图">
+        <div class="practice-tools">
+          <label class="ghost-btn" for="practicePhoto">上传成品图</label>
+          <input class="hidden" id="practicePhoto" type="file" accept="image/*">
+          <button class="ghost-btn" id="practiceClear" type="button">清除图片</button>
+        </div>
+      </div>
+      <textarea class="detail-textarea" id="practiceNotes" rows="3" placeholder="这次做得怎么样？有没有要改的地方？"></textarea>
+      <div class="hero-actions">
+        <button class="pill" id="practiceSave" type="button">保存这次练习</button>
+        <span class="detail-status" id="practiceStatus" role="status"></span>
+      </div>
     </section>`;
 
   document.title = `${recipe.name} · 我的菜谱 · 小白学菜`;
+
+  const wishBtn = document.getElementById("detailWishBtn");
+  const wishlist = window.XiaoBaiWishlist;
+  if (wishBtn && wishlist) {
+    const renderWish = () => {
+      const active = wishlist.has(recipe.id);
+      wishBtn.classList.toggle("active", active);
+      wishBtn.textContent = active ? "已在想学清单 ✓" : "加入想学";
+    };
+    wishBtn.addEventListener("click", () => {
+      wishlist.toggle({
+        id: recipe.id,
+        name: recipe.name,
+        url: `my-recipe.html?id=${encodeURIComponent(recipe.id)}`,
+        cover: recipe.cover,
+        lesson: "我的菜谱",
+      });
+      renderWish();
+    });
+    renderWish();
+  }
+
+  const practicePhotoInput = document.getElementById("practicePhoto");
+  const practicePhotoPreview = document.getElementById("practicePhotoPreview");
+  const practiceClear = document.getElementById("practiceClear");
+  const practiceNotes = document.getElementById("practiceNotes");
+  const practiceSave = document.getElementById("practiceSave");
+  const practiceStatus = document.getElementById("practiceStatus");
+  const practiceLog = window.XiaoBaiPracticeLog;
+  let practicePhoto = "";
+
+  function renderPracticePhoto() {
+    if (practicePhoto) {
+      practicePhotoPreview.src = practicePhoto;
+      practicePhotoPreview.classList.remove("hidden");
+      practiceClear.classList.remove("hidden");
+    } else {
+      practicePhotoPreview.removeAttribute("src");
+      practicePhotoPreview.classList.add("hidden");
+      practiceClear.classList.add("hidden");
+    }
+  }
+
+  practicePhotoInput.addEventListener("change", () => {
+    const file = practicePhotoInput.files && practicePhotoInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const image = new Image();
+      image.addEventListener("load", () => {
+        const max = 1000;
+        const scale = Math.min(1, max / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+        practicePhoto = canvas.toDataURL("image/jpeg", 0.75);
+        renderPracticePhoto();
+      });
+      image.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  });
+
+  practiceClear.addEventListener("click", () => {
+    practicePhoto = "";
+    practicePhotoInput.value = "";
+    renderPracticePhoto();
+  });
+
+  practiceSave.addEventListener("click", () => {
+    if (!practiceLog) return;
+    const saved = practiceLog.upsert({
+      recipeId: recipe.id,
+      name: recipe.name,
+      url: `my-recipe.html?id=${encodeURIComponent(recipe.id)}`,
+      date: new Date().toISOString().slice(0, 10),
+      notes: practiceNotes.value.trim(),
+      photo: practicePhoto,
+      cover: recipe.cover,
+    });
+    practiceStatus.textContent = saved
+      ? "已保存，可以去我的厨房查看最近练习。"
+      : "保存失败：浏览器存储空间可能已满。";
+  });
+
+  renderPracticePhoto();
 
   const menuBtn = document.getElementById("menuBtn");
   const menuPop = document.getElementById("menuPop");
