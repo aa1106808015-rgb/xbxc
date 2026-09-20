@@ -417,6 +417,11 @@
       font-size: 11.5px;
     }
 
+    .card-tags .source-tag {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
     .match {
       margin-top: 13px !important;
       padding-top: 12px;
@@ -493,7 +498,7 @@
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
           <a class="nav-link" href="courses.html"><span>课程列表</span><small>按课学习</small></a>
           <a class="nav-link current" href="library.html"><span>菜谱库</span><small>搜索</small></a>
-          <a class="nav-link" href="taste.html"><span>我的口味</span></a>
+          <a class="nav-link" href="my-recipes.html"><span>我的菜谱</span><small>自己添加</small></a>
           <a class="nav-link" href="kitchen.html"><span>我的厨房</span></a>
         </nav>
       </div>
@@ -511,7 +516,7 @@
     <section class="hero wrap">
       <p class="eyebrow">个人菜谱库</p>
       <h1>今天想做什么？</h1>
-      <p class="hero-note">用菜名、食材、做法或口味来搜。比如输入“鸡蛋”“焯水”“收汁”“快手”“不辣”，就能找到适合现在做的那一道。</p>
+      <p class="hero-note">用菜名、食材、做法或口味来搜；除了九道基础课，这里也会搜到你自己添加的菜谱。比如输入“鸡蛋”“焯水”“收汁”“快手”。</p>
 
       <form class="search" id="searchForm" role="search">
         <input id="searchInput" type="search" autocomplete="off" aria-label="搜索菜谱" placeholder="搜菜名、食材或步骤，例如：番茄 / 焯水 / 收汁">
@@ -520,6 +525,7 @@
       </form>
 
       <p class="recent hidden" id="recentWrap">最近搜索：<span id="recentChips"></span></p>
+      <p class="recent"><a class="text-link" href="my-recipes.html">还没有自己的菜谱？添加一道 →</a></p>
     </section>
 
     <section class="wrap">
@@ -542,6 +548,14 @@
           <button class="chip selected" type="button" data-value="all">全部</button>
           <button class="chip" type="button" data-value="todo">还没练</button>
           <button class="chip" type="button" data-value="done">已练过</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">来源</span>
+        <div class="chips" data-filter="source">
+          <button class="chip selected" type="button" data-value="all">全部</button>
+          <button class="chip" type="button" data-value="builtin">内置课程</button>
+          <button class="chip" type="button" data-value="custom">我的菜谱</button>
         </div>
       </div>
       <div class="filter-row">
@@ -569,6 +583,7 @@
   </footer>
 
   <script src="data/recipes.js"></script>
+  <script src="assets/my-recipes-store.js"></script>
   <script src="library.js"></script>
 </body>
 </html>

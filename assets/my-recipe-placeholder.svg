@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="我的菜谱封面占位">
+  <rect width="800" height="600" fill="#eef0e7"/>
+  <circle cx="400" cy="300" r="170" fill="#fffdf8" stroke="#d9d6cb" stroke-width="6"/>
+  <path d="M290 318c0-62 49-112 110-112s110 50 110 112" fill="none" stroke="#b9b6a9" stroke-width="14" stroke-linecap="round"/>
+  <path d="M330 318h140c0 58-31 104-70 104s-70-46-70-104Z" fill="#dde5d0" stroke="#b9b6a9" stroke-width="6"/>
+  <path d="M470 210l26-52M356 210l-26-52" stroke="#d4a28c" stroke-width="14" stroke-linecap="round"/>
+  <text x="400" y="500" text-anchor="middle" font-family="serif" font-size="42" fill="#6e6c63">我的菜谱</text>
+</svg>

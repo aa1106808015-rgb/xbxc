@@ -2,6 +2,7 @@
   "use strict";
 
   const RECIPES = Array.isArray(window.XIAOBAI_RECIPES) ? window.XIAOBAI_RECIPES : [];
+  const CUSTOM_STORE = window.XiaoBaiMyRecipes || null;
   const LEVEL_KEYS = [
     "xiaobai-level1-done-v1",
     "xiaobai-level2-done-v1",
@@ -15,6 +16,7 @@
     level: "all",
     tag: "all",
     progress: "all",
+    source: "all",
   };
 
   const searchInput = document.getElementById("searchInput");
@@ -70,6 +72,11 @@
       if (records[id] && records[id].done) done.add(id);
     });
     return done;
+  }
+
+  function allRecipes() {
+    const custom = CUSTOM_STORE ? CUSTOM_STORE.loadForSearch() : [];
+    return [...RECIPES, ...custom];
   }
 
   function escapeHtml(value) {
@@ -179,6 +186,8 @@
     if (state.tag !== "all" && !(recipe.tags || []).includes(state.tag)) return false;
     if (state.progress === "done" && !done.has(recipe.id)) return false;
     if (state.progress === "todo" && done.has(recipe.id)) return false;
+    const source = recipe.source || "builtin";
+    if (state.source !== "all" && source !== state.source) return false;
     return true;
   }
 
@@ -186,6 +195,7 @@
     const snippet = findSnippet(recipe, tokens);
     const tags = (recipe.tags || []).slice(0, 4);
     const lessonText = (recipe.lesson || "").split("·")[0].trim() || "基础课";
+    const sourceTag = recipe.source === "custom" ? `<span class="source-tag">我的菜谱</span>` : "";
 
     return `
       <a class="card" href="${escapeHtml(recipe.url)}">
@@ -201,7 +211,7 @@
           </div>
           <h3>${highlight(recipe.name, tokens)}</h3>
           <p>${escapeHtml(recipe.lead)}</p>
-          <div class="card-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
+          <div class="card-tags">${sourceTag}${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
           ${snippet ? `<p class="match"><b>匹配：</b>${escapeHtml(snippet)}</p>` : ""}
         </div>
       </a>`;
@@ -210,8 +220,9 @@
   function render() {
     const tokens = tokenize(state.q);
     const done = loadDoneIds();
+    const recipes = allRecipes();
 
-    const list = RECIPES
+    const list = recipes
       .filter((recipe) => matchesFilters(recipe, done))
       .map((recipe) => ({ recipe, score: tokens.length ? scoreRecipe(recipe, tokens) : 0 }))
       .filter((item) => !tokens.length || item.score > 0)
@@ -229,8 +240,11 @@
       resultCount.textContent = `找到 ${list.length} 道菜`;
       activeQuery.textContent = `关键词：${state.q.trim()}`;
     } else {
-      resultCount.textContent = `共 ${list.length} 道基础菜`;
-      activeQuery.textContent = "九道基础课的完整菜谱";
+      const customCount = recipes.filter((recipe) => recipe.source === "custom").length;
+      resultCount.textContent = `共 ${list.length} 道菜谱`;
+      activeQuery.textContent = customCount
+        ? `九道基础课 + ${customCount} 道我的菜谱`
+        : "九道基础课的完整菜谱";
     }
 
     if (list.length > 0) {
@@ -265,7 +279,7 @@
 
   function renderTags() {
     const counts = new Map();
-    for (const recipe of RECIPES) {
+    for (const recipe of allRecipes()) {
       for (const tag of recipe.tags || []) {
         counts.set(tag, (counts.get(tag) || 0) + 1);
       }
@@ -288,7 +302,7 @@
   function syncChips() {
     document.querySelectorAll("[data-filter]").forEach((row) => {
       const key = row.dataset.filter;
-      const value = state[key];
+      const value = state[key] || "all";
       row.querySelectorAll(".chip").forEach((chip) => {
         chip.classList.toggle("selected", chip.dataset.value === value);
       });
@@ -322,6 +336,7 @@
     if (state.level !== "all") params.set("level", state.level);
     if (state.tag !== "all") params.set("tag", state.tag);
     if (state.progress !== "all") params.set("progress", state.progress);
+    if (state.source !== "all") params.set("source", state.source);
     const query = params.toString();
     const url = `${location.pathname}${query ? `?${query}` : ""}`;
     try {
@@ -337,6 +352,7 @@
     state.level = params.get("level") || "all";
     state.tag = params.get("tag") || "all";
     state.progress = params.get("progress") || "all";
+    state.source = params.get("source") || "all";
     searchInput.value = state.q;
   }
 

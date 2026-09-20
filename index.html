@@ -750,7 +750,7 @@
         <nav class="menu-pop hidden" id="menuPop" aria-label="网站板块">
           <a class="nav-link" href="courses.html"><span>课程列表</span><small>按课学习</small></a>
           <a class="nav-link" href="library.html"><span>菜谱库</span><small>可搜索</small></a>
-          <a class="nav-link" href="taste.html"><span>我的口味</span></a>
+          <a class="nav-link" href="my-recipes.html"><span>我的菜谱</span><small>自己添加</small></a>
           <a class="nav-link" href="kitchen.html"><span>我的厨房</span></a>
         </nav>
       </div>
@@ -777,32 +777,6 @@
     <section class="hero" id="prompt">
       <p class="eyebrow">从零开始学做菜</p>
       <h1>小白学菜</h1>
-
-      <div class="prompt">
-        <div class="prompt-rail" aria-hidden="true"></div>
-        <p class="prompt-head">告诉我们你的起点</p>
-        <p class="prompt-sub">说得越具体，给你的练习计划就越贴你</p>
-        <div class="prompt-card">
-          <textarea id="tellInput" aria-label="告诉我们你的起点">我只会煮泡面，周末想学会给家里人做两菜一汤</textarea>
-          <div class="prompt-meta">
-            <button class="pill" id="planBtn">生成我的练习计划</button>
-            <div class="prompt-hints">
-              <button class="example-btn" id="exampleBtn">换个例子试试</button>
-              <span>不用注册</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="plan-panel hidden" id="planPanel" aria-live="polite">
-      <p class="plan-kicker">给你的第一周练习计划</p>
-      <div class="plan-card">
-        <span class="plan-badge" id="planBadge">第 1 课 · 基础</span>
-        <h2 id="planTitle">先从一顿饭练起</h2>
-        <p class="plan-desc" id="planDesc">三道菜递进练习，每道只解决一个新问题。</p>
-        <ol class="steps" id="planSteps"></ol>
-      </div>
     </section>
 
     <section class="feed" id="feed">
@@ -938,57 +912,7 @@
       }
     ];
 
-    const SAMPLES = [
-      "我只会煮泡面，周末想学会给家里人做两菜一汤",
-      "上班带饭，想学几道不怕放凉的减脂便当",
-      "完全没下过厨，先从最不容易翻车的一道菜开始"
-    ];
-
-    const ROUTES = [
-      {
-        match: ["家人", "两菜一汤", "周末"],
-        badge: "路线 1 · 周末家宴",
-        title: "周末给家人做一顿两菜一汤",
-        desc: "不用一次学会很多，三道菜各练一个重点，周末按顺序做熟。",
-        steps: [
-          { name: "番茄炒蛋", learn: "先练熟第一道炒菜，掌握油温与调味", url: "recipes/fanqie-chao-dan.html" },
-          { name: "蒜蓉炒青菜", learn: "补一道绿叶菜，学大火快炒不出水", url: "recipes/suancheng-chao-qingcai.html" },
-          { name: "冬瓜丸子汤", learn: "最后学会做汤，凑齐两菜一汤", url: "recipes/donggua-wanzi-tang.html" }
-        ]
-      },
-      {
-        match: ["便当", "减脂", "带饭", "健康"],
-        badge: "路线 2 · 便当",
-        title: "先凑齐一份不怕放凉的减脂便当",
-        desc: "肉类、蔬菜、主食三格分开练，每道都适合提前一晚做好。",
-        steps: [
-          { name: "香煎鸡胸肉", learn: "先解决“肉”这一格，学会煎出嫩鸡胸", url: "recipes/xiangjian-jixiong.html" },
-          { name: "蒜蓉炒西兰花", learn: "补上“蔬菜”这一格，颜色和口感都稳" },
-          { name: "电饭煲杂粮焖饭", learn: "最后搞定“主食”，一锅出更省事" }
-        ]
-      },
-      {
-        match: ["泡面", "没下过厨", "零基础", "不会"],
-        badge: "路线 3 · 基础",
-        title: "第一周，只练会三道基本功",
-        desc: "从不会到能独立开火，先从最不容易翻车的三道练起。",
-        steps: [
-          { name: "番茄炒蛋", learn: "学调蛋液和判断油温，先会炒", url: "recipes/fanqie-chao-dan.html" },
-          { name: "电饭煲腊肠焖饭", learn: "学一锅出，不盯着锅也不会焦", url: "recipes/dianfanbao-lachang-menfan.html" },
-          { name: "蒜蓉炒青菜", learn: "补上青菜，一餐开始像个样子", url: "recipes/suancheng-chao-qingcai.html" }
-        ]
-      }
-    ];
-
     const cardGrid = document.getElementById("cardGrid");
-    const tellInput = document.getElementById("tellInput");
-    const planBtn = document.getElementById("planBtn");
-    const exampleBtn = document.getElementById("exampleBtn");
-    const planPanel = document.getElementById("planPanel");
-    const planBadge = document.getElementById("planBadge");
-    const planTitle = document.getElementById("planTitle");
-    const planDesc = document.getElementById("planDesc");
-    const planSteps = document.getElementById("planSteps");
 
     function renderCards() {
       cardGrid.innerHTML = DISHES.map(dish => {
@@ -1012,47 +936,6 @@
           : card;
       }).join("");
     }
-
-    function pickRoute(text) {
-      const input = text || SAMPLES[0];
-      const hit = ROUTES.find(route =>
-        route.match.some(keyword => input.includes(keyword))
-      );
-      return hit || ROUTES[2];
-    }
-
-    function renderPlan(route) {
-      planBadge.textContent = route.badge;
-      planTitle.textContent = route.title;
-      planDesc.textContent = route.desc;
-      planSteps.innerHTML = route.steps.map((step, index) => `
-        <li class="step">
-          <span class="step-num">STEP ${String(index + 1).padStart(2, "0")}</span>
-          <h3>${step.url ? `<a class="step-link" href="${step.url}">${step.name}</a>` : step.name}</h3>
-          <p>${step.learn}</p>
-        </li>
-      `).join("");
-    }
-
-    planBtn.addEventListener("click", () => {
-      const route = pickRoute(tellInput.value.trim());
-      planBtn.disabled = true;
-      planBtn.textContent = "正在为你安排…";
-      setTimeout(() => {
-        renderPlan(route);
-        planPanel.classList.remove("hidden");
-        planBtn.disabled = false;
-        planBtn.textContent = "再给我安排一次";
-        planPanel.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 650);
-    });
-
-    let sampleIndex = 0;
-    exampleBtn.addEventListener("click", () => {
-      sampleIndex = (sampleIndex + 1) % SAMPLES.length;
-      tellInput.value = SAMPLES[sampleIndex];
-      tellInput.focus();
-    });
 
     const menuBtn = document.getElementById("menuBtn");
     const menuPop = document.getElementById("menuPop");
