@@ -352,6 +352,176 @@
       line-height: 1.75;
     }
 
+    .today-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .dish-picker {
+      position: relative;
+    }
+
+    .dish-picker-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .dish-picker-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .dish-count {
+      min-width: 19px;
+      height: 19px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 11px;
+    }
+
+    .dish-picker-pop {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 20;
+      width: 280px;
+      max-height: 330px;
+      overflow: auto;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 18px 40px rgba(25, 25, 20, .12);
+    }
+
+    .dish-picker-title {
+      margin: 0 0 10px;
+      color: var(--faint);
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+
+    .dish-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 8px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    .dish-option:hover {
+      background: var(--line-soft);
+      color: var(--ink);
+    }
+
+    .dish-option input {
+      accent-color: var(--ink);
+    }
+
+    .dish-option.group-title {
+      margin-top: 6px;
+      color: var(--faint);
+      font-size: 11.5px;
+      cursor: default;
+    }
+
+    .selected-dishes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .selected-dish-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .selected-dish-image {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--bg);
+    }
+
+    .selected-dish-image img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .selected-dish-image figcaption {
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+
+    .selected-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .selected-chip a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .selected-chip button {
+      color: var(--faint);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .selected-chip button:hover {
+      color: #a33;
+    }
+
+    .today-divider {
+      height: 1px;
+      margin: 22px 0 20px;
+      background: var(--line);
+    }
+
+    .shop-list .shop-group {
+      margin-top: 8px;
+      padding: 8px 0 3px;
+      border-bottom: 0;
+      color: var(--faint);
+      font-size: 11.5px;
+      letter-spacing: .08em;
+    }
+
+    .shop-list .shop-group:first-child {
+      margin-top: 0;
+    }
+
     @media (max-width: 480px) {
       .recent-item,
       .wish-item {
@@ -406,22 +576,28 @@
 
       <div class="dash-grid">
         <div>
-          <section class="card" id="today">
-            <p class="card-label">TODAY</p>
+          <section class="card today-card" id="today">
+            <div class="today-top">
+              <p class="card-label">TODAY</p>
+              <div class="dish-picker">
+                <button class="dish-picker-btn" id="dishPickerBtn" type="button" aria-expanded="false">
+                  选择菜品 <span class="dish-count" id="dishCount">1</span>
+                </button>
+                <div class="dish-picker-pop hidden" id="dishPickerPop">
+                  <p class="dish-picker-title">选择要一起准备的菜</p>
+                  <div class="dish-options" id="dishOptions"></div>
+                </div>
+              </div>
+            </div>
             <div class="today-head">
-              <h2 id="todayName">番茄炒蛋</h2>
-              <span id="todayLesson" style="font-size:12px;color:var(--faint);letter-spacing:.14em;">第 1 课 · 基础</span>
+              <h2 id="todayName">今天吃什么</h2>
             </div>
             <p class="today-reason" id="todayReason"></p>
-            <div class="today-actions">
-              <a class="pill" href="" id="todayLink">打开菜谱</a>
-              <button class="checkin-btn" id="checkinBtn" type="button">练完打卡</button>
-            </div>
-          </section>
-
-          <section class="card">
+            <div class="selected-dish-images" id="selectedDishImages"></div>
+            <div class="selected-dishes" id="selectedDishes"></div>
+            <div class="today-divider"></div>
             <p class="card-label">SHOPPING LIST</p>
-            <h2 style="margin:0 0 6px;font-family:var(--serif);font-weight:550;font-size:22px;" id="shopTitle">两菜一汤采购清单</h2>
+            <h2 style="margin:0 0 6px;font-family:var(--serif);font-weight:550;font-size:22px;" id="shopTitle">做「番茄炒蛋」要买</h2>
             <p class="shop-empty hidden" id="shopEmpty"></p>
             <ul class="shop-list" id="shopList"></ul>
             <p class="shop-note" id="shopNote"></p>
@@ -455,6 +631,8 @@
 
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="data/recipes.js"></script>
+  <script src="assets/my-recipes-store.js"></script>
   <script src="assets/wishlist-store.js"></script>
   <script src="assets/practice-log-store.js"></script>
   <script>
@@ -593,33 +771,115 @@
     const recId = nextDishId();
     const rec = DISH_MAP[recId];
 
-    function renderToday() {
-      document.getElementById("todayName").textContent = rec.name;
-      document.getElementById("todayLesson").textContent = rec.lesson;
-      document.getElementById("todayReason").textContent = allDone.size === 9
-        ? "九课全部学完了！这道是你的目标菜，用来复习或招待朋友都很合适。"
-        : rec.why;
-      document.getElementById("todayLink").href = rec.url;
+    const SELECT_KEY = "xiaobai-kitchen-selected-v1";
 
-      const today = new Date().toISOString().slice(0, 10);
-      const checkKey = "xiaobai-checkin-" + today;
-      const doneToday = storageGet(checkKey) === recId;
-      const btn = document.getElementById("checkinBtn");
-      btn.classList.toggle("checked", doneToday);
-      btn.textContent = doneToday ? "今天已打卡 ✓" : "练完打卡";
-      btn.addEventListener("click", () => {
-        if (storageGet(checkKey) === recId) {
-          storageSet(checkKey, "");
-          btn.classList.remove("checked");
-          btn.textContent = "练完打卡";
-          showToast("已取消今日打卡");
-        } else {
-          storageSet(checkKey, recId);
-          btn.classList.add("checked");
-          btn.textContent = "今天已打卡 ✓";
-          showToast(`今日练习：${rec.name}，打卡成功`);
-        }
-      });
+    function formatIngredient(item) {
+      if (typeof item === "string") return item;
+      return [item.name, item.amount].filter(Boolean).join(" ");
+    }
+
+    function lessonNumber(value) {
+      const match = String(value || "").match(/第\s*(\d+)\s*课/);
+      return match ? Number(match[1]) : 99;
+    }
+
+    const DATA_DISHES = (window.XIAOBAI_RECIPES || [])
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        lesson: item.lesson,
+        url: item.url,
+        cover: item.cover,
+        why: item.lead,
+        ingredients: (item.ingredients || []).map(formatIngredient),
+        source: "builtin"
+      }))
+      .sort((a, b) => lessonNumber(a.lesson) - lessonNumber(b.lesson));
+
+    const CUSTOM_DISHES = (window.XiaoBaiMyRecipes ? window.XiaoBaiMyRecipes.load() : []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      lesson: "我的菜谱",
+      url: `my-recipe.html?id=${encodeURIComponent(item.id)}`,
+      cover: item.cover || "assets/my-recipe-placeholder.svg",
+      why: item.lead || item.notes || "我自己添加的菜谱。",
+      ingredients: (item.ingredients || []).map(formatIngredient),
+      source: "custom"
+    }));
+
+    const ALL_DISHES = DATA_DISHES.length
+      ? [...DATA_DISHES, ...CUSTOM_DISHES]
+      : Object.entries(DISH_MAP).map(([id, item]) => ({
+          id,
+          name: item.name,
+          lesson: item.lesson,
+          url: item.url,
+          cover: "assets/my-recipe-placeholder.svg",
+          why: item.why,
+          ingredients: item.ingredients,
+          source: "builtin"
+        }));
+
+    function dishById(id) {
+      return ALL_DISHES.find((item) => item.id === id) || null;
+    }
+
+    function loadSelectedIds() {
+      let ids = [];
+      try {
+        ids = JSON.parse(storageGet(SELECT_KEY) || "[]");
+      } catch (e) {
+        ids = [];
+      }
+      ids = Array.isArray(ids) ? ids.filter((id) => dishById(id)) : [];
+      if (!ids.length) ids = [recId];
+      return [...new Set(ids)];
+    }
+
+    let selectedIds = loadSelectedIds();
+
+    function saveSelected() {
+      storageSet(SELECT_KEY, JSON.stringify(selectedIds));
+    }
+
+    function renderSelected() {
+      const wrap = document.getElementById("selectedDishes");
+      wrap.innerHTML = selectedIds.map((id) => {
+        const dish = dishById(id);
+        if (!dish) return "";
+        return `<span class="selected-chip"><a href="${escapeHtml(dish.url)}">${escapeHtml(dish.name)}</a><button type="button" data-remove-dish="${escapeHtml(id)}" aria-label="移除${escapeHtml(dish.name)}">×</button></span>`;
+      }).join("");
+
+      const imageGrid = document.getElementById("selectedDishImages");
+      imageGrid.innerHTML = selectedIds.map((id) => {
+        const dish = dishById(id);
+        if (!dish) return "";
+        return `
+          <figure class="selected-dish-image">
+            <img src="${escapeHtml(dish.cover || "assets/my-recipe-placeholder.svg")}" alt="${escapeHtml(dish.name)}成品图" loading="lazy">
+            <figcaption>${escapeHtml(dish.name)}</figcaption>
+          </figure>`;
+      }).join("");
+
+      document.getElementById("dishCount").textContent = String(selectedIds.length);
+
+      const options = document.getElementById("dishOptions");
+      const builtin = ALL_DISHES.filter((dish) => dish.source !== "custom");
+      const custom = ALL_DISHES.filter((dish) => dish.source === "custom");
+      const option = (dish) => `<label class="dish-option"><input type="checkbox" value="${escapeHtml(dish.id)}"${selectedIds.includes(dish.id) ? " checked" : ""}><span>${escapeHtml(dish.name)}</span></label>`;
+      options.innerHTML = [
+        builtin.length ? '<p class="dish-option group-title">内置课程</p>' : "",
+        ...builtin.map(option),
+        custom.length ? '<p class="dish-option group-title">我的菜谱</p>' : "",
+        ...custom.map(option)
+      ].join("");
+    }
+
+    function renderToday() {
+      const primary = dishById(selectedIds[0]) || rec;
+      document.getElementById("todayReason").textContent = selectedIds.length > 1
+        ? `已选择 ${selectedIds.length} 道菜，下面的采购清单会合并显示。`
+        : `已选择「${primary.name}」，下面的采购清单会按这道菜显示。`;
     }
 
     function escapeHtml(value) {
@@ -692,31 +952,47 @@
       const list = document.getElementById("shopList");
       const empty = document.getElementById("shopEmpty");
       const note = document.getElementById("shopNote");
-      if (!rec.ingredients) {
-        empty.textContent = "这道菜没有固定采购项，打开菜谱按用量准备即可。";
+      const selected = selectedIds.map(dishById).filter(Boolean);
+
+      if (!selected.length) {
+        empty.textContent = "还没有选择菜品。";
         empty.classList.remove("hidden");
         list.innerHTML = "";
         note.textContent = "";
         return;
       }
+
       empty.classList.add("hidden");
-      const shopKey = "xiaobai-shop-" + recId;
+      const shopKey = "xiaobai-shop-set-" + selected.map((dish) => dish.id).sort().join("__");
       let checked = [];
       try {
         checked = JSON.parse(storageGet(shopKey) || "[]");
       } catch (e) { /* ignore */ }
-      document.getElementById("shopTitle").textContent = `做「${rec.name}」要买`;
-      list.innerHTML = rec.ingredients.map((item, index) => {
-        const isChecked = checked.includes(item);
-        return `
-          <li class="${isChecked ? "checked" : ""}" data-item="${item}" tabindex="0">
-            <span class="shop-check">✓</span>
-            <span>${item}</span>
-          </li>`;
-      }).join("");
-      note.textContent = "买到的点一下打勾，清单会自动记住；重新做这道菜时还在。";
+      document.getElementById("shopTitle").textContent = selected.length === 1
+        ? `做「${selected[0].name}」要买`
+        : `这 ${selected.length} 道菜要买`;
 
-      list.querySelectorAll("li").forEach(li => {
+      list.innerHTML = selected.map((dish) => {
+        const group = selected.length > 1
+          ? `<li class="shop-group">${escapeHtml(dish.name)}</li>`
+          : "";
+        const items = (dish.ingredients || []).map((item) => {
+          const itemKey = `${dish.id}::${item}`;
+          const isChecked = checked.includes(itemKey);
+          return `
+            <li class="${isChecked ? "checked" : ""}" data-item="${escapeHtml(itemKey)}" tabindex="0">
+              <span class="shop-check">✓</span>
+              <span>${escapeHtml(item)}</span>
+            </li>`;
+        }).join("");
+        return group + items;
+      }).join("");
+
+      note.textContent = selected.length > 1
+        ? "选择菜品变化时清单会同步更新；买到的点一下打勾，清单会自动记住。"
+        : "买到的点一下打勾，清单会自动记住；重新做这道菜时还在。";
+
+      list.querySelectorAll("li[data-item]").forEach(li => {
         const toggle = () => {
           const item = li.dataset.item;
           const idx = checked.indexOf(item);
@@ -739,6 +1015,53 @@
       });
     }
 
+    function renderAll() {
+      renderToday();
+      renderSelected();
+      renderShop();
+    }
+
+    const pickerBtn = document.getElementById("dishPickerBtn");
+    const pickerPop = document.getElementById("dishPickerPop");
+    const dishOptions = document.getElementById("dishOptions");
+    const selectedDishes = document.getElementById("selectedDishes");
+
+    pickerBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = pickerPop.classList.toggle("hidden") === false;
+      pickerBtn.setAttribute("aria-expanded", String(open));
+    });
+
+    dishOptions.addEventListener("change", (event) => {
+      const input = event.target.closest("input[type='checkbox']");
+      if (!input) return;
+      const id = input.value;
+      if (input.checked) {
+        if (!selectedIds.includes(id)) selectedIds.push(id);
+      } else {
+        if (selectedIds.length <= 1) {
+          input.checked = true;
+          showToast("至少保留一道菜");
+          return;
+        }
+        selectedIds = selectedIds.filter((item) => item !== id);
+      }
+      saveSelected();
+      renderAll();
+    });
+
+    selectedDishes.addEventListener("click", (event) => {
+      const remove = event.target.closest("[data-remove-dish]");
+      if (!remove) return;
+      if (selectedIds.length <= 1) {
+        showToast("至少保留一道菜");
+        return;
+      }
+      selectedIds = selectedIds.filter((id) => id !== remove.dataset.removeDish);
+      saveSelected();
+      renderAll();
+    });
+
     menuBtn.addEventListener("click", (event) => {
       event.stopPropagation();
       const open = menuPop.classList.toggle("hidden") === false;
@@ -751,6 +1074,10 @@
         menuPop.classList.add("hidden");
         menuBtn.setAttribute("aria-expanded", "false");
       }
+      if (!pickerPop.classList.contains("hidden") && !pickerPop.contains(event.target) && event.target !== pickerBtn) {
+        pickerPop.classList.add("hidden");
+        pickerBtn.setAttribute("aria-expanded", "false");
+      }
     });
 
     let toastTimer;
@@ -761,10 +1088,9 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    renderToday();
+    renderAll();
     renderRecent();
     renderWishlist();
-    renderShop();
 
     document.getElementById("wishList").addEventListener("click", (event) => {
       const button = event.target.closest("[data-wish-remove]");
