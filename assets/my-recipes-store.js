@@ -29,13 +29,14 @@
 
   function normalizeStep(item, index) {
     if (typeof item === "string") {
-      const [title, text = ""] = item.split("|").map((part) => part.trim());
-      return { title: title || `第 ${index + 1} 步`, text, time: "" };
+      const [title, text = "", photo = ""] = item.split("|").map((part) => part.trim());
+      return { title: title || `第 ${index + 1} 步`, text, time: "", photo };
     }
     return {
       title: String(item && item.title ? item.title : `第 ${index + 1} 步`).trim(),
       text: String(item && item.text ? item.text : "").trim(),
       time: String(item && item.time ? item.time : "").trim(),
+      photo: String(item && item.photo ? item.photo : "").trim(),
     };
   }
 

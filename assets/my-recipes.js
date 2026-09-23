@@ -77,7 +77,7 @@
 
   function linesFromSteps(items) {
     return (items || [])
-      .map((item) => [item.title, item.text].filter(Boolean).join(" | "))
+      .map((item) => [item.title, item.text, item.photo].filter(Boolean).join(" | "))
       .join("\n");
   }
 
@@ -137,7 +137,7 @@
       sourceUrl: sourceUrlInput.value.trim(),
       lead: leadInput.value.trim(),
       ingredients: parseLines(ingredientsInput.value, ["name", "amount", "why"]),
-      steps: parseLines(stepsInput.value, ["title", "text"]),
+      steps: parseLines(stepsInput.value, ["title", "text", "photo"]),
       notes: notesInput.value.trim(),
     };
   }
