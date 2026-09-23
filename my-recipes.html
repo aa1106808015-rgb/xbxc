@@ -142,9 +142,18 @@
           </div>
 
           <div class="field">
-            <label for="steps">做法步骤</label>
-            <textarea id="steps" rows="7" placeholder="步骤标题 | 说明 | 图片地址（可选）&#10;牛腩焯水 | 冷水下锅，煮开后撇去浮沫&#10;炒番茄 | 炒到出汁，再加入牛腩"></textarea>
-            <p class="hint">每行一步，用 | 分成“步骤标题、说明、图片地址”；图片地址可以省略。</p>
+            <label>做法步骤</label>
+            <div class="step-editor">
+              <div class="step-count-row">
+                <label for="stepCount">共几步</label>
+                <button class="step-count-btn" id="stepMinus" type="button" aria-label="减少一步">−</button>
+                <input id="stepCount" type="number" min="1" max="20" value="3">
+                <button class="step-count-btn" id="stepPlus" type="button" aria-label="增加一步">＋</button>
+                <span>步</span>
+              </div>
+              <div class="step-rows" id="stepRows"></div>
+            </div>
+            <p class="hint">每一步都可以单独填写标题、说明，并上传一张步骤图。</p>
           </div>
 
           <div class="field">

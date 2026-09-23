@@ -19,7 +19,10 @@
   const clearCoverBtn = document.getElementById("clearCover");
   const leadInput = document.getElementById("lead");
   const ingredientsInput = document.getElementById("ingredients");
-  const stepsInput = document.getElementById("steps");
+  const stepCountInput = document.getElementById("stepCount");
+  const stepRows = document.getElementById("stepRows");
+  const stepMinus = document.getElementById("stepMinus");
+  const stepPlus = document.getElementById("stepPlus");
   const notesInput = document.getElementById("notes");
   const saveBtn = document.getElementById("saveBtn");
   const resetBtn = document.getElementById("resetBtn");
@@ -75,12 +78,6 @@
       .join("\n");
   }
 
-  function linesFromSteps(items) {
-    return (items || [])
-      .map((item) => [item.title, item.text, item.photo].filter(Boolean).join(" | "))
-      .join("\n");
-  }
-
   function setStatus(message) {
     formStatus.textContent = message;
     clearTimeout(setStatus.timer);
@@ -97,10 +94,68 @@
     coverPreview.src = coverValue || store.PLACEHOLDER;
   }
 
+  function clampStepCount(value) {
+    return Math.min(20, Math.max(1, Number(value) || 1));
+  }
+
+  function stepRowHTML(step, index) {
+    const value = step || {};
+    const photo = String(value.photo || "").trim();
+    const isData = photo.startsWith("data:");
+    return `
+      <div class="step-edit-row" data-step-row>
+        <span class="step-edit-num">${String(index + 1).padStart(2, "0")}</span>
+        <div class="step-edit-fields">
+          <input class="step-title" type="text" value="${escapeHtml(value.title || "")}" placeholder="步骤标题，例如：牛腩焯水">
+          <textarea class="step-text" rows="2" placeholder="这一步怎么做">${escapeHtml(value.text || "")}</textarea>
+          <div class="step-photo-tools">
+            <img class="step-photo-preview" src="${escapeHtml(photo || store.PLACEHOLDER)}" alt="步骤图预览">
+            <label class="ghost-btn">上传步骤图<input class="hidden step-photo-file" type="file" accept="image/*"></label>
+            <input class="step-photo-url" type="text" value="${isData ? "" : escapeHtml(photo)}" placeholder="或粘贴图片地址">
+            <button class="ghost-btn step-photo-clear" type="button">清除</button>
+            <input class="step-photo-data" type="hidden" value="${isData ? escapeHtml(photo) : ""}">
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function readStepRows() {
+    return [...stepRows.querySelectorAll(".step-edit-row")].map((row) => ({
+      title: row.querySelector(".step-title").value.trim(),
+      text: row.querySelector(".step-text").value.trim(),
+      photo: (row.querySelector(".step-photo-data").value || row.querySelector(".step-photo-url").value).trim(),
+    }));
+  }
+
+  function renderStepRows(count, values = []) {
+    const total = clampStepCount(count);
+    stepCountInput.value = total;
+    stepRows.innerHTML = Array.from({ length: total }, (_, index) => stepRowHTML(values[index], index)).join("");
+  }
+
+  function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const image = new Image();
+      image.addEventListener("load", () => {
+        const max = 1000;
+        const scale = Math.min(1, max / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+        callback(canvas.toDataURL("image/jpeg", 0.75));
+      });
+      image.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  }
+
   function resetForm() {
     form.reset();
     editId.value = "";
     setCover("");
+    renderStepRows(3);
     deleteBtn.classList.add("hidden");
     saveBtn.textContent = "保存菜谱";
   }
@@ -116,7 +171,7 @@
     sourceUrlInput.value = recipe.sourceUrl;
     leadInput.value = recipe.lead;
     ingredientsInput.value = linesFromIngredients(recipe.ingredients);
-    stepsInput.value = linesFromSteps(recipe.steps);
+    renderStepRows(Math.max(1, recipe.steps.length), recipe.steps);
     notesInput.value = recipe.notes;
     setCover(recipe.cover);
     deleteBtn.classList.remove("hidden");
@@ -137,7 +192,7 @@
       sourceUrl: sourceUrlInput.value.trim(),
       lead: leadInput.value.trim(),
       ingredients: parseLines(ingredientsInput.value, ["name", "amount", "why"]),
-      steps: parseLines(stepsInput.value, ["title", "text", "photo"]),
+      steps: readStepRows().filter((step) => step.title || step.text || step.photo),
       notes: notesInput.value.trim(),
     };
   }
@@ -251,23 +306,55 @@
   coverFileInput.addEventListener("change", () => {
     const file = coverFileInput.files && coverFileInput.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      const image = new Image();
-      image.addEventListener("load", () => {
-        const max = 1000;
-        const scale = Math.min(1, max / Math.max(image.width, image.height));
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(image.width * scale));
-        canvas.height = Math.max(1, Math.round(image.height * scale));
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        setCover(canvas.toDataURL("image/jpeg", 0.78));
-        setStatus("封面已压缩并放入表单，保存后生效。");
-      });
-      image.src = reader.result;
+    compressImage(file, (data) => {
+      setCover(data);
+      setStatus("封面已压缩并放入表单，保存后生效。");
     });
-    reader.readAsDataURL(file);
+  });
+
+  stepCountInput.addEventListener("change", () => {
+    renderStepRows(stepCountInput.value, readStepRows());
+  });
+
+  stepMinus.addEventListener("click", () => {
+    const values = readStepRows();
+    renderStepRows(clampStepCount(Number(stepCountInput.value) - 1), values);
+  });
+
+  stepPlus.addEventListener("click", () => {
+    const values = readStepRows();
+    renderStepRows(clampStepCount(Number(stepCountInput.value) + 1), values);
+  });
+
+  stepRows.addEventListener("change", (event) => {
+    const input = event.target.closest(".step-photo-file");
+    if (!input) return;
+    const file = input.files && input.files[0];
+    const row = input.closest(".step-edit-row");
+    if (!file || !row) return;
+    compressImage(file, (data) => {
+      row.querySelector(".step-photo-data").value = data;
+      row.querySelector(".step-photo-url").value = "";
+      row.querySelector(".step-photo-preview").src = data;
+    });
+  });
+
+  stepRows.addEventListener("input", (event) => {
+    const url = event.target.closest(".step-photo-url");
+    if (!url) return;
+    const row = url.closest(".step-edit-row");
+    row.querySelector(".step-photo-data").value = "";
+    row.querySelector(".step-photo-preview").src = url.value.trim() || store.PLACEHOLDER;
+  });
+
+  stepRows.addEventListener("click", (event) => {
+    const clear = event.target.closest(".step-photo-clear");
+    if (!clear) return;
+    const row = clear.closest(".step-edit-row");
+    row.querySelector(".step-photo-data").value = "";
+    row.querySelector(".step-photo-url").value = "";
+    row.querySelector(".step-photo-file").value = "";
+    row.querySelector(".step-photo-preview").src = store.PLACEHOLDER;
   });
 
   exportBtn.addEventListener("click", () => {
@@ -323,5 +410,6 @@
     if (recipe) fillForm(recipe);
   }
 
+  renderStepRows(3);
   renderList();
 })();
