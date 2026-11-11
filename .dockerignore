@@ -1,0 +1,17 @@
+.git
+.gitignore
+.dockerignore
+ai/.env
+**/__pycache__
+**/*.pyc
+*.pyo
+*.pdf
+*.zip
+*.docx
+.archify
+resume_work
+xbxc_work
+assets
+recipes
+*.html
+check_data.py

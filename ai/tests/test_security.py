@@ -47,7 +47,7 @@ class SecurityTest(unittest.TestCase):
         self.assertIn("sk-***", redacted)
 
     def test_frontend_has_no_server_key(self):
-        for name in ("ai-assistant.js", "ai-assistant.css"):
+        for name in ("ai-assistant.js", "ai-assistant.css", "ai-config.js"):
             text = (ROOT / "assets" / name).read_text(encoding="utf-8")
             self.assertNotIn("LLM_API_KEY", text)
             self.assertNotIn("DEEPSEEK_API_KEY", text)

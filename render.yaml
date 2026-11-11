@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: xbxc-ai
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.deepseek.com
+      - key: LLM_MODEL
+        value: deepseek-chat
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "30"

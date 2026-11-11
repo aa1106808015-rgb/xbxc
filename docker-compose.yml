@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    image: xbxc-ai:local
+    ports:
+      - "8000:8000"
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.deepseek.com}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:-30}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://127.0.0.1:8765,http://localhost:8765}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-30}
+    restart: unless-stopped

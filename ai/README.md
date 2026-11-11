@@ -1,6 +1,6 @@
 # 小白学菜 · AI 层
 
-D1 数据与检索基线；D2 `/chat` + 引用；D3 混合检索；D4 四个工具；D5 前端 AI 面板 + SSE；D6 40 题评测 + Prompt v2 + LLM token 流式；D7 安全与隐私。
+D1 数据与检索基线；D2 `/chat` + 引用；D3 混合检索；D4 四个工具；D5 前端 AI 面板 + SSE；D6 40 题评测 + Prompt v2 + LLM token 流式；D7 安全与隐私；D8 Docker + GitHub Actions 部署。
 
 ## 目录
 
@@ -46,7 +46,14 @@ ai/
 
 assets/
 ├── ai-assistant.js        # D5 面板、SSE 解析、引用渲染
-└── ai-assistant.css       # 桌面悬浮 + 移动端底部抽屉
+├── ai-assistant.css       # 桌面悬浮 + 移动端底部抽屉
+└── ai-config.js           # 前端 API 地址（Pages 构建时覆盖）
+
+Dockerfile                 # API 镜像
+docker-compose.yml         # 本地 API 容器
+.github/workflows/ci.yml   # 测试 + 评测 + Docker build
+.github/workflows/deploy.yml # GHCR + Render + GitHub Pages
+docs/deploy.md             # 部署手册
 ```
 
 ## 运行
@@ -323,6 +330,54 @@ Origin evil.example.com → 403
 
 限制：限流是单进程内存版；多 worker/重启会重置，生产建议 Redis/网关限流；CORS 不是鉴权，公开部署前要加访问控制。详见 `D7_REPORT.md`。
 
+## D8 Docker + GitHub Actions 部署
+
+已加：
+
+- `Dockerfile`：python:3.12-slim + FastAPI/uvicorn + 非 root + `/health` HEALTHCHECK
+- `docker-compose.yml`：本地 API，从环境变量读 Key/模型/CORS/限流
+- `.dockerignore`：排除 `.env`、前端、图片、缓存
+- `.github/workflows/ci.yml`：测试 + 40 题工具评测 + 检索回归 + JS 检查 + Docker build
+- `.github/workflows/deploy.yml`：测试 → GHCR 镜像 → Render Deploy Hook → GitHub Pages
+- `assets/ai-config.js`：本地默认 `http://127.0.0.1:8000`；Pages 构建时用 `AI_API_BASE` 覆盖
+
+本地：
+
+```bash
+docker build -t xbxc-ai .
+docker run -d --name xbxc-ai --env-file ai/.env -p 8000:8000 xbxc-ai
+```
+
+本机实测（Docker Desktop 4.99 + Hyper-V 后端）：
+
+```text
+xbxc-ai:latest 236 MB
+container healthy
+GET /health -> llm_configured: true
+POST /chat  -> mode: llm, citations: 3
+```
+
+Docker Hub 直连不通时，先拉镜像站再 tag：
+
+```bash
+docker pull docker.m.daocloud.io/library/python:3.12-slim
+docker tag docker.m.daocloud.io/library/python:3.12-slim python:3.12-slim
+docker build -t xbxc-ai .
+```
+
+复验脚本：`scripts/docker_verify.ps1`。
+
+GitHub 侧需要：
+
+| 类型 | 名称 | 用途 |
+|---|---|---|
+| Secret | `RENDER_DEPLOY_HOOK` | Render 部署钩子（可选） |
+| Variable | `AI_API_BASE` | 后端公网地址，写入 Pages 的 `ai-config.js` |
+
+Pages：Settings → Pages → Source 选 **GitHub Actions**。
+
+完整步骤见 `docs/deploy.md`。本机 Docker build/run/`/health` 已验证；**GitHub Actions 仍未实际触发**（未 push/无云端凭据）。
+
 ## D1 当前基线
 
 - 菜谱：9 道 / 55 步 / 51 条用料
@@ -376,4 +431,6 @@ Origin evil.example.com → 403
 
 ## 下一步
 
-D8：部署。API 放 Docker，GitHub Actions 构建/部署，配置 `ALLOWED_ORIGINS`、`RATE_LIMIT_PER_MINUTE` 和 Key 环境变量；前端仍走 GitHub Pages。
+真正执行一次部署：Render 建 Docker 服务 → 配 `LLM_API_KEY` / `ALLOWED_ORIGINS` → GitHub 配 `RENDER_DEPLOY_HOOK` 和 `AI_API_BASE` → push 看 Actions → 用 Pages 打开 AI 面板，确认 `/chat/stream` 命中公网 API。
+
+完整限制与解除顺序见 [LIMITATIONS.md](LIMITATIONS.md)。

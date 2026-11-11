@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai/requirements.txt
+
+      - name: Install API dependencies
+        run: pip install -r ai/requirements.txt
+
+      - name: Unit tests
+        run: python -m unittest discover -s ai/tests -v
+
+      - name: D6 evaluation (tool path)
+        run: python -m ai.eval.run_answer_eval
+
+      - name: D3 retrieval regression
+        run: python -m ai.eval.run_hybrid
+
+      - name: Frontend JS syntax
+        run: node --check assets/ai-assistant.js
+
+  docker-build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: xbxc-ai:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
