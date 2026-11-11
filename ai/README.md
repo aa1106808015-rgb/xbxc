@@ -376,7 +376,7 @@ GitHub 侧需要：
 
 Pages：Settings → Pages → Source 选 **GitHub Actions**。
 
-完整步骤见 `docs/deploy.md`。本机 Docker build/run/`/health` 已验证；**GitHub Actions 仍未实际触发**（未 push/无云端凭据）。
+完整步骤见 `docs/deploy.md`。本机 Docker build/run/`/health` 已验证。GitHub Actions 首跑：CI 成功、镜像已推 GHCR、Render Hook 已触发；**Pages 因 `AI_API_BASE` 未设置而跳过**，设置后重跑 Deploy 即可。
 
 ## D1 当前基线
 

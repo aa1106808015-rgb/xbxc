@@ -83,16 +83,35 @@ docker build -t xbxc-ai .
 - `ALLOWED_ORIGINS` 只填正式前端域名，不要用 `*`。
 - GHCR 镜像默认私有/需权限；Render Deploy Hook 是 Secret。
 
+## GitHub Actions 首跑
+
+2026-11-11 首次 push 后，两个 workflow 都跑完了：
+
+| Workflow | Run | 结果 |
+|---|---|---|
+| CI | `42992516687` | **success**：test + docker-build |
+| Deploy | `42992516703` | **success**：test + build-push + deploy-api；deploy-pages **skipped** |
+
+细节：
+
+- `build-push` 已把镜像推到 GHCR。
+- `deploy-api` 执行了 Render Deploy Hook（Secret 已存在）。
+- `deploy-pages` 被跳过，因为仓库 Variable `AI_API_BASE` 还没有设置。
+- 仓库 Pages API 返回 404，说明 Pages 还没真正发布。
+
+下一步：设置 `AI_API_BASE`（Render 公网地址）→ Settings → Pages → Source 选 GitHub Actions → 重跑 Deploy workflow。
+
 ## 限制
 
 - 本机用 Hyper-V 后端；WSL2 的 Linux 组件下载约 712 MB 且被限速，未使用 WSL2 路径。
 - 本机 Docker Hub 直连失败，基础镜像通过 `docker.m.daocloud.io` 镜像站拉取并打 tag；CI 里没有这个前置步骤，GitHub Actions 网络正常时不需要。
 - `docker compose up` 未单独执行；已用等价的 `docker run` 验证镜像。
-- 未实际触发 GitHub Actions；workflow YAML 需要第一次 push 后在 Actions 页面验证。
+- GitHub Actions 首跑成功，但 `deploy-pages` 因 `AI_API_BASE` 缺失被跳过；Pages 尚未发布。
+- `deploy-api` 只验证了 Render Hook 调用成功，没有验证 Render 服务公网 `/health`。
 - Render 免费实例会休眠，首次请求可能慢。
 - 限流仍是单进程内存版；多实例需要 Redis/网关。
 - 公开部署前确认菜谱图片版权。
 
 ## 下一步
 
-真正执行一次部署：Render 建服务 → 配 Secret/Variable → push → 看 Actions 日志 → 用 Pages 打开 AI 面板，确认 `/chat/stream` 命中公网 API。
+设置 GitHub Variable `AI_API_BASE`（Render 公网地址）→ Settings → Pages → Source 选 **GitHub Actions** → 重跑 Deploy workflow；然后打开 Pages 面板确认 `/chat/stream` 命中公网 API，并验证 Render `/health`。
