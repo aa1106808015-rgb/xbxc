@@ -14,9 +14,11 @@ from pathlib import Path
 
 
 def _load_dotenv():
-    """Tiny .env loader: KEY=VALUE, no external dependency. Existing env wins."""
-    path = Path(__file__).resolve().parents[1] / ".env"
-    if not path.exists():
+    """Load ai/.env (preferred), then repo-root .env. Existing env wins."""
+    here = Path(__file__).resolve().parent
+    candidates = [here / ".env", here.parent / ".env"]
+    path = next((p for p in candidates if p.exists()), None)
+    if path is None:
         return
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
@@ -104,6 +106,53 @@ class LLMClient:
             "usage": data.get("usage", {}),
             "model": data.get("model", self.model),
         }
+
+    def stream_complete(self, messages, temperature=0.1, max_tokens=600):
+        """Yield content deltas from an OpenAI-compatible streaming response."""
+        if not self.api_key:
+            raise LLMNotConfigured("LLM_API_KEY / DEEPSEEK_API_KEY / OPENAI_API_KEY is not set")
+
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "stream": True,
+        }
+        req = urllib.request.Request(
+            _endpoint(self.base_url),
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "Accept": "text/event-stream",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                for raw in resp:
+                    line = raw.decode("utf-8", errors="replace").strip()
+                    if not line.startswith("data:"):
+                        continue
+                    data = line[5:].strip()
+                    if data == "[DONE]":
+                        break
+                    try:
+                        obj = json.loads(data)
+                    except json.JSONDecodeError:
+                        continue
+                    try:
+                        delta = obj["choices"][0].get("delta", {}).get("content", "")
+                    except (KeyError, IndexError, TypeError):
+                        continue
+                    if delta:
+                        yield delta
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")[:500]
+            raise LLMError(f"LLM HTTP {exc.code}: {body}") from exc
+        except Exception as exc:
+            raise LLMError(f"LLM stream failed: {exc}") from exc
 
 
 def llm_status() -> dict:

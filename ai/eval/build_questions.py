@@ -115,16 +115,57 @@ QUESTIONS = [
 ]
 
 
+EXTRA_QUESTIONS = [
+    dict(id="Q31", intent="find_recipe", question="家里有鸡翅和可乐，想做一个甜咸口的硬菜",
+         answerable=True, expected_recipe_ids=["jichi"], expected_step=None,
+         reference_answer="可乐鸡翅：甜咸口，35 分钟，适合请客。", notes="食材 + 口味"),
+    dict(id="Q32", intent="find_recipe", question="想喝清淡的汤，最好 30 分钟内，有冬瓜和肉末",
+         answerable=True, expected_recipe_ids=["tang"], expected_step=None,
+         reference_answer="冬瓜丸子汤：清淡汤品，30 分钟。", notes="时间 + 食材"),
+    dict(id="Q33", intent="step_qa", question="麻婆豆腐勾芡时，淀粉水分几次淋？",
+         answerable=True, expected_recipe_ids=["mapo"], expected_step=5,
+         reference_answer="分两次淋入，汤汁变亮、能挂在豆腐上，没有白色淀粉疙瘩。", notes="步骤 5 细节"),
+    dict(id="Q34", intent="step_qa", question="煎鸡胸肉翻面时，怎么判断可以翻了？",
+         answerable=True, expected_recipe_ids=["jixiong"], expected_step=4,
+         reference_answer="贴锅一面金黄、能整块推动；铲不动就再等 30 秒。", notes="步骤 4 判断标准"),
+    dict(id="Q35", intent="scaling", question="麻婆豆腐 2 人份改 4 人份，嫩豆腐要几盒？",
+         answerable=True, expected_recipe_ids=["mapo"], expected_step=None,
+         reference_answer="2 盒（约 800 克），按 2 倍；用工具计算。", notes="2→4 人份"),
+    dict(id="Q36", intent="scaling", question="可乐鸡翅 2 人份改 6 人份，鸡翅要几个？",
+         answerable=True, expected_recipe_ids=["jichi"], expected_step=None,
+         reference_answer="24 个（8 个 × 3），用工具计算。", notes="2→6 人份"),
+    dict(id="Q37", intent="shopping", question="番茄炒蛋和麻婆豆腐一起买什么？",
+         answerable=True, expected_recipe_ids=["fanqie", "mapo"], expected_step=None,
+         reference_answer="番茄炒蛋 + 麻婆豆腐两份采购清单。", notes="多菜采购"),
+    dict(id="Q38", intent="shopping", question="凉拌黄瓜的辣椒油是必买还是可选？",
+         answerable=True, expected_recipe_ids=["huanggua"], expected_step=None,
+         reference_answer="辣椒油标注为可选，不是必买。", notes="optional 字段"),
+    dict(id="Q39", intent="refusal", question="帮我算一下这顿饭的蛋白质含量",
+         answerable=False, expected_recipe_ids=[], expected_step=None,
+         reference_answer="菜谱没有营养数据，应说明未覆盖。", notes="营养数据未覆盖"),
+    dict(id="Q40", intent="refusal", question="用微波炉做麻婆豆腐要几分钟？",
+         answerable=False, expected_recipe_ids=[], expected_step=None,
+         reference_answer="现有菜谱是锅灶做法，没有微波炉参数，应说明未覆盖。", notes="做法未覆盖"),
+]
+
+
 def main() -> None:
     assert len(QUESTIONS) == 30
-    counts = Counter(q["intent"] for q in QUESTIONS)
-    assert counts == {"find_recipe": 6, "step_qa": 6, "scaling": 6, "shopping": 6, "refusal": 6}, counts
-    assert sum(q["answerable"] for q in QUESTIONS) == 24
+    assert len(EXTRA_QUESTIONS) == 10
+    all_questions = QUESTIONS + EXTRA_QUESTIONS
+    counts = Counter(q["intent"] for q in all_questions)
+    assert counts == {"find_recipe": 8, "step_qa": 8, "scaling": 8, "shopping": 8, "refusal": 8}, counts
+    assert sum(q["answerable"] for q in all_questions) == 32
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with OUT.open("w", encoding="utf-8") as fh:
         for q in QUESTIONS:
             fh.write(json.dumps(q, ensure_ascii=False) + "\n")
-    print(f"wrote {OUT} questions={len(QUESTIONS)} answerable={sum(q['answerable'] for q in QUESTIONS)}")
+    out40 = OUT.with_name("questions40.jsonl")
+    with out40.open("w", encoding="utf-8") as fh:
+        for q in all_questions:
+            fh.write(json.dumps(q, ensure_ascii=False) + "\n")
+    print(f"wrote {OUT} questions={len(QUESTIONS)}")
+    print(f"wrote {out40} questions={len(all_questions)} answerable={sum(q['answerable'] for q in all_questions)}")
     print(dict(counts))
 
 

@@ -7,8 +7,9 @@ from pathlib import Path
 from .agent import route_with_tools
 from .hybrid import HybridRetriever
 from .llm import LLMClient, LLMError, LLMNotConfigured
-from .prompts import build_messages
+from .prompts import PROMPT_VERSION, build_messages
 from .retrieval import load_chunks
+from .security import is_prompt_injection, redact_secrets
 
 ROOT = Path(__file__).resolve().parents[1]
 RECIPES_PATH = ROOT / "ai" / "data" / "recipes.json"
@@ -50,10 +51,33 @@ def _ingredient_names(recipe_id):
     return [i["name"] for i in recipe["ingredients"]]
 
 
+def _mentioned_recipe_ids(question):
+    matches = []
+    for rid, recipe in _RECIPES.items():
+        names = [recipe["name"]] + recipe.get("aliases", [])
+        for name in names:
+            if name and name in question:
+                matches.append((len(name), rid))
+    return [rid for _, rid in sorted(matches, reverse=True)]
+
+
+def _ensure_mentioned_recipes(question, hits):
+    """For multi-recipe questions, add one recipe chunk per mentioned recipe."""
+    present = {h["metadata"]["recipe_id"] for h in hits}
+    for rid in _mentioned_recipe_ids(question):
+        if rid in present:
+            continue
+        chunk = next((c for c in _CHUNKS if c["chunk_id"] == f"recipe:{rid}"), None)
+        if chunk:
+            hits.append({**chunk, "score": 0, "hybrid": 0, "bm25": 0, "cosine": 0})
+            present.add(rid)
+    return hits
+
+
 def _is_refusal(question):
     patterns = [
-        "燃气灶", "维修", "卡路里", "热量", "营养", "过敏", "空气炸锅",
-        "餐厅", "翻译", "医生", "吃药", "减肥药",
+        "燃气灶", "维修", "卡路里", "热量", "营养", "蛋白质", "过敏", "空气炸锅",
+        "微波炉", "餐厅", "翻译", "医生", "吃药", "减肥药",
     ]
     return any(p in question for p in patterns)
 
@@ -105,11 +129,21 @@ def answer_question(question: str, top_k: int = 3, use_llm: bool = True, use_too
     if not question:
         raise ValueError("question is empty")
 
+    if is_prompt_injection(question):
+        return {
+            "answer": "我不会执行改变角色、泄露提示或绕过规则的指令。可以问我菜谱、步骤、份量或采购清单。",
+            "citations": [],
+            "mode": "refusal",
+            "prompt_version": PROMPT_VERSION,
+            "usage": {},
+        }
+
     if _is_refusal(question):
         return {
             "answer": "这个问题超出菜谱数据的范围，我不能给出可靠结论。可以问我某道菜的步骤、用料或份量换算。",
             "citations": [],
             "mode": "refusal",
+            "prompt_version": PROMPT_VERSION,
             "usage": {},
         }
 
@@ -119,17 +153,27 @@ def answer_question(question: str, top_k: int = 3, use_llm: bool = True, use_too
             "answer": "菜谱里没有找到足够依据，换个说法，或者直接打开对应菜谱页看看。",
             "citations": [],
             "mode": "refusal",
+            "prompt_version": PROMPT_VERSION,
             "usage": {},
         }
 
     tool_result = route_with_tools(question, hits) if use_tools else None
     if tool_result and tool_result.get("citation_index"):
-        idx = tool_result["citation_index"]
+        if tool_result.get("citations"):
+            citations = tool_result["citations"]
+        else:
+            indices = tool_result.get("citation_indices") or [tool_result["citation_index"]]
+            citations = [
+                _citation(hits[i - 1], i)
+                for i in dict.fromkeys(indices)
+                if 1 <= i <= len(hits)
+            ]
         return {
             "answer": tool_result["answer"],
-            "citations": [_citation(hits[idx - 1], idx)],
+            "citations": citations,
             "mode": "tool",
             "tool": tool_result["tool"],
+            "prompt_version": PROMPT_VERSION,
             "data": tool_result.get("data"),
             "usage": {},
             "warning": "",
@@ -143,13 +187,14 @@ def answer_question(question: str, top_k: int = 3, use_llm: bool = True, use_too
 
     if use_llm and LLMClient().configured:
         try:
-            result = LLMClient().complete(build_messages(question, hits))
+            hits = _ensure_mentioned_recipes(question, hits)
+            result = LLMClient().complete(build_messages(question, hits), temperature=0.1)
             answer = result["text"]
             usage = result.get("usage", {})
             mode = "llm"
             cited_ids = {int(x) for x in re.findall(r"\[C(\d+)\]", answer)}
         except (LLMNotConfigured, LLMError) as exc:
-            warning = str(exc)
+            warning = redact_secrets(str(exc))
             answer = ""
             mode = "mock"
 
@@ -171,6 +216,65 @@ def answer_question(question: str, top_k: int = 3, use_llm: bool = True, use_too
         "answer": answer,
         "citations": citations,
         "mode": mode,
+        "prompt_version": PROMPT_VERSION,
         "usage": usage,
         "warning": warning,
     }
+
+
+def _result_events(result):
+    """Turn a full result into the D5 SSE event sequence."""
+    yield "meta", {
+        "mode": result.get("mode", ""),
+        "tool": result.get("tool", ""),
+        "prompt_version": result.get("prompt_version", PROMPT_VERSION),
+    }
+    yield "citations", {"citations": result.get("citations", [])}
+    answer = result.get("answer", "")
+    for i in range(0, len(answer), 8):
+        yield "token", {"text": answer[i:i + 8]}
+    yield "done", {
+        "mode": result.get("mode", ""),
+        "tool": result.get("tool", ""),
+        "warning": result.get("warning", ""),
+    }
+
+
+def stream_answer(question: str, top_k: int = 3, use_tools: bool = True):
+    """SSE-ready event generator.
+
+    Tool/refusal answers are deterministic and chunked. When a real LLM is
+    configured, free-form answers stream token-by-token from the provider.
+    """
+    question = (question or "").strip()
+    if not question:
+        raise ValueError("question is empty")
+
+    base = answer_question(question, top_k=top_k, use_llm=False, use_tools=use_tools)
+    if base.get("mode") in ("tool", "refusal") or not LLMClient().configured:
+        yield from _result_events(base)
+        return
+
+    hits = _RETRIEVER.search(question, top_k)
+    hits = _ensure_mentioned_recipes(question, hits)
+    yield "meta", {"mode": "llm", "tool": "", "prompt_version": PROMPT_VERSION}
+    yield "citations", {"citations": [_citation(hit, i) for i, hit in enumerate(hits, start=1)]}
+
+    emitted = []
+    try:
+        for delta in LLMClient().stream_complete(
+            build_messages(question, hits),
+            temperature=0.1,
+        ):
+            emitted.append(delta)
+            yield "token", {"text": delta}
+        yield "done", {"mode": "llm", "tool": "", "warning": ""}
+    except (LLMNotConfigured, LLMError) as exc:
+        if emitted:
+            yield "done", {"mode": "llm", "tool": "", "warning": str(exc)}
+            return
+        fallback = answer_question(question, top_k=top_k, use_llm=False, use_tools=use_tools)
+        yield "citations", {"citations": fallback.get("citations", [])}
+        for i in range(0, len(fallback.get("answer", "")), 8):
+            yield "token", {"text": fallback["answer"][i:i + 8]}
+        yield "done", {"mode": "mock", "tool": "", "warning": str(exc)}

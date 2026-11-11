@@ -17,6 +17,7 @@ from .tools import (
 STEP_MARKERS = ("第", "步", "怎么判断", "什么状态", "为什么", "熟", "出水", "收汁", "火候", "程度", "水温", "下锅", "搅", "散")
 SHOPPING_MARKERS = ("买", "材料", "食材", "调料", "清单")
 SCALING_MARKERS = ("人份", "改做", "改成", "份量", "倍")
+FIND_MARKERS = ("吃", "喝", "做", "推荐", "菜", "饿", "晚饭", "午饭", "早餐", "请客", "快手", "清淡", "减脂", "一锅出", "凉菜", "汤", "食材", "冰箱", "家里有")
 
 
 def _anchor(hits):
@@ -27,6 +28,17 @@ def _anchor(hits):
     for i, hit in enumerate(hits, start=1):
         return hit["metadata"]["recipe_id"], i
     return None, None
+
+
+def _mentioned_recipe(question):
+    """Prefer an explicitly named recipe/alias over the top retrieval hit."""
+    matches = []
+    for rid, recipe in RECIPES.items():
+        names = [recipe["name"]] + recipe.get("aliases", [])
+        for name in names:
+            if name and name in question:
+                matches.append((len(name), rid))
+    return max(matches)[1] if matches else None
 
 
 def _fmt_scaling(data, cite):
@@ -60,11 +72,16 @@ def route_with_tools(question: str, hits):
 
     if any(k in question for k in SCALING_MARKERS):
         target = target_servings(question)
-        if target and rid:
+        recipe_id = _mentioned_recipe(question) or rid
+        if target and recipe_id:
             try:
-                data = scale_servings(rid, target)
+                data = scale_servings(recipe_id, target)
+                cite_index = next(
+                    (i for i, hit in enumerate(hits, start=1) if hit["metadata"]["recipe_id"] == recipe_id),
+                    cite_index,
+                )
                 return {
-                    "answer": _fmt_scaling(data, cite),
+                    "answer": _fmt_scaling(data, f"C{cite_index}"),
                     "tool": "scale_servings",
                     "data": data,
                     "citation_index": cite_index,
@@ -82,15 +99,37 @@ def route_with_tools(question: str, hits):
                     ids.append(item["id"])
             ids = list(dict.fromkeys(ids)) or [rid]
             data = build_shopping_list(ids)
-            cite_index = next(
-                (i for i, hit in enumerate(hits, start=1) if hit["metadata"]["recipe_id"] == ids[0]),
-                cite_index,
-            )
+            citation_indices = []
+            for item_id in ids:
+                found_index = next(
+                    (i for i, hit in enumerate(hits, start=1) if hit["metadata"]["recipe_id"] == item_id),
+                    None,
+                )
+                if found_index:
+                    citation_indices.append(found_index)
+            if not citation_indices:
+                citation_indices = [cite_index]
+            citations = []
+            for i, group in enumerate(data["groups"], start=1):
+                recipe = RECIPES.get(group["recipe_id"], {})
+                citations.append({
+                    "id": f"C{i}",
+                    "chunk_id": f"recipe:{group['recipe_id']}",
+                    "recipe_id": group["recipe_id"],
+                    "recipe_name": group["recipe_name"],
+                    "type": "recipe",
+                    "step_index": None,
+                    "title": group["recipe_name"],
+                    "url": recipe.get("url", ""),
+                    "score": 0,
+                })
             return {
-                "answer": _fmt_shopping(data, f"C{cite_index}"),
+                "answer": _fmt_shopping(data, f"C{citation_indices[0]}"),
                 "tool": "build_shopping_list",
                 "data": data,
-                "citation_index": cite_index,
+                "citations": citations,
+                "citation_index": citation_indices[0],
+                "citation_indices": citation_indices,
             }
         except ToolError:
             pass
@@ -114,7 +153,7 @@ def route_with_tools(question: str, hits):
                 except ToolError:
                     break
 
-    if rid:
+    if rid and any(k in question for k in FIND_MARKERS):
         # find_recipe: actually call the search tool, then cite the matching hit
         data = search_recipes(question, 1)
         if not data["results"]:

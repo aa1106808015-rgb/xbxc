@@ -6,7 +6,8 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from ai.core import answer_question
+from ai.core import answer_question, stream_answer
+from ai.llm import LLMClient
 
 
 class MockLLMHandler(BaseHTTPRequestHandler):
@@ -15,6 +16,17 @@ class MockLLMHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length).decode("utf-8"))
         assert payload["model"] == "mock-model"
+        if payload.get("stream"):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.end_headers()
+            for text in ("麻婆豆腐", " 第 2 步", "：盐水焯 1 分钟。[C1]"):
+                data = json.dumps({"choices": [{"delta": {"content": text}}]}, ensure_ascii=False)
+                self.wfile.write(f"data: {data}\n\n".encode("utf-8"))
+                self.wfile.flush()
+            self.wfile.write(b"data: [DONE]\n\n")
+            self.wfile.flush()
+            return
         body = json.dumps({
             "model": "mock-model",
             "choices": [{"message": {"content": "麻婆豆腐 第 2 步：盐水焯 1 分钟。[C1]"}}],
@@ -53,6 +65,23 @@ class LLMModeTest(unittest.TestCase):
         self.assertIn("[C1]", r["answer"])
         self.assertEqual(r["usage"]["total_tokens"], 30)
         self.assertEqual(r["citations"][0]["step_index"], 2)
+
+    def test_llm_mode_with_tools_enabled_for_freeform(self):
+        r = answer_question("番茄炒蛋", use_llm=True, use_tools=True)
+        self.assertEqual(r["mode"], "llm")
+
+    def test_stream_complete(self):
+        chunks = list(LLMClient().stream_complete([{"role": "user", "content": "test"}]))
+        self.assertEqual("".join(chunks), "麻婆豆腐 第 2 步：盐水焯 1 分钟。[C1]")
+
+    def test_stream_answer_uses_llm_tokens(self):
+        events = list(stream_answer("麻婆豆腐的豆腐为什么要先用盐水焯？", use_tools=False))
+        meta = next(payload for name, payload in events if name == "meta")
+        tokens = "".join(payload["text"] for name, payload in events if name == "token")
+        done = next(payload for name, payload in events if name == "done")
+        self.assertEqual(meta["mode"], "llm")
+        self.assertIn("麻婆豆腐", tokens)
+        self.assertEqual(done["mode"], "llm")
 
 
 if __name__ == "__main__":

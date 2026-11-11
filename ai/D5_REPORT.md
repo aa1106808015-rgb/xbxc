@@ -30,8 +30,8 @@
 
 ## 服务端 SSE
 
-- stdlib：`ai/dev_server.py` 新增 `POST /chat/stream`，返回 `text/event-stream`，每 8 个字符一个 `token` 事件。
-- FastAPI：`ai/app.py` 新增 `StreamingResponse` 版本，事件协议一致。
+- stdlib：`ai/dev_server.py` 新增 `POST /chat/stream`，返回 `text/event-stream`；工具/拒答每 8 个字符一个 `token` 事件。
+- FastAPI：`ai/app.py` 新增 `StreamingResponse` 版本，事件协议一致；D6 后真实 LLM 路径直接透传 token。
 - 事件顺序：`meta` → `citations` → 多个 `token` → `done`。
 - 实测 `curl`：`meta:1 / citations:1 / token:25 / done:1`，Content-Type 为 `text/event-stream; charset=utf-8`。
 
@@ -40,12 +40,12 @@
 - `node --check assets/ai-assistant.js` 通过。
 - 16 个页面均包含 AI 脚本，无重复。
 - 桌面 1365px、移动 500px 截图检查：面板、输入框、引用、建议问题均可用。
-- 18 个 Python unittest 保持通过。
+- 24 个 Python unittest 保持通过。
 - SSE 实测拿到完整 `done` 事件。
 
 ## 限制
 
-- 当前是“先算完答案，再按 8 字符切片流式输出”，不是 LLM token 级流式；接真实 LLM 后可把 `answer_question` 换成流式生成器，事件协议不变。
+- 工具/拒答路径是“先算完答案，再按 8 字符切片”；D6 已把真实 LLM 路径改成 token 级流式，事件协议不变。
 - FastAPI 版仍未在本机启动（缺 fastapi/uvicorn）；stdlib SSE 已实测。
 - API 默认 `http://127.0.0.1:8000`；部署时在页面设置 `window.XIAOBAI_AI_API`。
 - 面板不持久化对话；服务端目前忽略 `history`，多轮上下文留给 D6。

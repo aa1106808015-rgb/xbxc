@@ -4,17 +4,17 @@
 Run:
   uvicorn ai.app:app --reload --port 8000
 """
-import asyncio
 import json
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
-from .core import answer_question
+from .core import answer_question, stream_answer
 from .llm import llm_status
+from .security import RateLimiter, origin_allowed
 from .tools import TOOL_SCHEMAS
 
 app = FastAPI(title="小白学菜 AI 助手", version="0.2.0")
@@ -30,10 +30,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_LIMITER = RateLimiter(int(os.getenv("RATE_LIMIT_PER_MINUTE", "30")), 60)
+
+
+@app.middleware("http")
+async def security_guard(request: Request, call_next):
+    if request.url.path in ("/chat", "/chat/stream"):
+        origin = request.headers.get("origin")
+        if origin and not origin_allowed(origin):
+            return JSONResponse({"error": "origin not allowed"}, status_code=403)
+        key = request.client.host if request.client else "unknown"
+        allowed, retry_after = _LIMITER.allow(key)
+        if not allowed:
+            return JSONResponse(
+                {"error": "too many requests"},
+                status_code=429,
+                headers={"Retry-After": str(retry_after)},
+            )
+    return await call_next(request)
+
 
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=500)
     top_k: int = Field(3, ge=1, le=5)
+    use_tools: bool = True
     history: list[dict] = Field(default_factory=list)
 
 
@@ -56,12 +76,13 @@ def tools():
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    result = answer_question(req.message, top_k=req.top_k, use_llm=True)
+    result = answer_question(req.message, top_k=req.top_k, use_llm=True, use_tools=req.use_tools)
     return {
         "answer": result["answer"],
         "citations": result["citations"],
         "mode": result["mode"],
         "tool": result.get("tool", ""),
+        "prompt_version": result.get("prompt_version", ""),
         "usage": result.get("usage", {}),
         "warning": result.get("warning", ""),
     }
@@ -73,16 +94,9 @@ def _sse(event: str, payload: dict) -> str:
 
 @app.post("/chat/stream")
 async def chat_stream(req: ChatRequest):
-    result = answer_question(req.message, top_k=req.top_k, use_llm=True)
-
-    async def generate():
-        yield _sse("meta", {"mode": result.get("mode", ""), "tool": result.get("tool", "")})
-        yield _sse("citations", {"citations": result.get("citations", [])})
-        answer = result.get("answer", "")
-        for i in range(0, len(answer), 8):
-            yield _sse("token", {"text": answer[i:i + 8]})
-            await asyncio.sleep(0.012)
-        yield _sse("done", {"mode": result.get("mode", ""), "tool": result.get("tool", "")})
+    def generate():
+        for event, payload in stream_answer(req.message, top_k=req.top_k, use_tools=req.use_tools):
+            yield _sse(event, payload)
 
     return StreamingResponse(
         generate(),
